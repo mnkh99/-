@@ -1,0 +1,1080 @@
+boss_skills:
+- id: 1263399
+  name: 渗透猛击
+  source: cast
+  name_en: Oozing Slam
+- id: 1263297
+  name: 崩解虚空
+  source: cast
+  name_en: Crashing Void
+- id: 1263523
+  name: 过载
+  source: cast
+  name_en: Overload
+- id: 1263542
+  name: 群体虚空灌注
+  source: cast
+  name_en: Mass Void Infusion
+- id: 1263538
+  name: 暗影触须
+  source: cast
+  name_en: Umbral Tentacles
+- id: 1265030
+  name: 虚空风暴
+  source: damage
+  dedup_ms: 10000
+  once: true
+  name_en: Void Storm
+  damage_display: interval
+- id: 245742
+  name: 暗影突袭
+  source: damage
+  dedup_ms: 10000
+  once: true
+  name_en: Shadow Pounce
+- id: 1261299
+  name: 投掷萨隆邪铁
+  source: cast
+  name_en: Throw Saronite
+- id: 1261546
+  name: 碎矿猛击
+  source: cast
+  name_en: Orebreaker
+- id: 1262029
+  name: 冰川过载
+  source: cast
+  name_en: Glacial Overload
+- id: 1261847
+  name: 寒晶践踏
+  source: cast
+  name_en: Cryostomp
+- id: 1264027
+  name: 暗影转移
+  source: cast
+  name_en: Shade Shift
+- id: 1264336
+  name: 瘟疫喷射
+  source: cast
+  name_en: Plague Expulsion
+- id: 1276648
+  name: 骸骨灌注
+  source: cast
+  name_en: Bone Infusion
+- id: 1262745
+  name: 白霜冲击
+  source: cast
+  name_en: Rime Blast
+- id: 1263406
+  name: 亡者大军
+  source: cast
+  name_en: Army of the Dead
+- id: 1252690
+  name: 疾风奔涌
+  source: cast
+  name_en: Gale Surge
+- id: 153757
+  name: 散刃
+  source: cast
+  name_en: Fan of Blades
+- id: 1287905
+  name: 光线
+  source: damage
+  dedup_ms: 10000
+  once: true
+  name_en: Light Ray
+- id: 154135
+  name: 超级新星
+  source: cast
+  name_en: Supernova
+- id: 1253510
+  name: 曙光
+  source: cast
+  name_en: Sunbreak
+- id: 1253538
+  name: 灼烧射线
+  source: cast
+  name_en: Scorching Ray
+- id: 386173
+  name: 法力炸弹
+  source: cast
+  name_en: Mana Bombs
+- id: 388537
+  name: 奥术裂隙
+  source: cast
+  name_en: Arcane Fissure
+- id: 396716
+  name: 皲皮
+  source: damage
+  dedup_ms: 10000
+  once: true
+  name_en: Splinterbark
+- id: 388923
+  name: 爆发苏醒
+  source: cast
+  name_en: Burst Forth
+- id: 376997
+  name: 狂野啄击
+  source: cast
+  name_en: Savage Peck
+- id: 377004
+  name: 震耳尖啸
+  source: cast
+  name_en: Deafening Screech
+- id: 374350
+  name: 能量炸弹
+  source: cast
+  name_en: Energy Bomb
+- id: 466556
+  name: 炽焰腾流
+  source: cast
+  name_en: Flaming Updraft
+- id: 467040
+  name: 燃烧烈风
+  source: cast
+  name_en: Burning Gale
+- id: 472745
+  name: 飞溅喷吐
+  source: cast
+  name_en: Splattering Spew
+- id: 472736
+  name: 衰弱尖啸
+  source: cast
+  name_en: Debilitating Shriek
+- id: 472053
+  name: 无情跳跃
+  source: cast
+  name_en: Reckless Leap
+- id: 1253026
+  name: 破胆怒吼
+  source: cast
+  name_en: Intimidating Shout
+- id: 468429
+  name: 疾风狙击
+  source: cast
+  name_en: Bullseye Windblast
+- id: 1283371
+  name: 飓风腾跃
+  source: damage
+  dedup_ms: 10000
+  once: true
+  name_en: Squall Leap
+- id: 1253986
+  name: 劲风射击
+  source: cast
+  name_en: Gust Shot
+- id: 474528
+  name: 飞矢烈风
+  source: cast
+  name_en: Bolt Gale
+- id: 1214081
+  name: 奥术驱除
+  source: cast
+  name_en: Arcane Expulsion
+- id: 1214032
+  name: 虚灵枷锁
+  source: cast
+- id: 1225792
+  name: 符文印记
+  source: cast
+  name_en: Runic Mark
+- id: 1224903
+  name: 镇压立场
+  source: cast
+  name_en: Suppression Zone
+- id: 1225193
+  name: 静默浪潮
+  source: cast
+  name_en: Wave of Silence
+- id: 1284954
+  name: 寰宇刺击
+  source: cast
+  name_en: Cosmic Sting
+- id: 1224299
+  name: 星界束缚
+  source: cast
+  name_en: Astral Grasp
+- id: 1280113
+  name: 庞大碎片
+  source: cast
+  name_en: Hulking Fragment
+- id: 1215893
+  name: 贪噬之熵
+  source: cast
+- id: 1215087
+  name: 不稳定的虚空精华
+  source: cast
+  name_en: Unstable Void Essence
+- id: 1246666
+  name: 感染羽翼
+  source: cast
+  name_en: Infected Pinions
+- id: 1260643
+  name: 弹幕射击
+  source: cast
+  name_en: Barrage
+- id: 1251204
+  name: 束缚幻影
+  source: cast
+  name_en: Wrest Phantoms
+- id: 1264989
+  name: 凋零瘴气
+  source: damage
+  dedup_ms: 10000
+  once: true
+  name_en: Withering Miasma
+- id: 1248879
+  name: 死噬容器
+  source: damage
+  dedup_ms: 10000
+  once: true
+  name_en: Deathgorged Vessel
+- id: 1250708
+  name: 死疽融合
+  source: cast
+  name_en: Necrotic Convergence
+- id: 1251023
+  name: 碎魂者
+  source: cast
+  name_en: Spiritbreaker
+- id: 1252676
+  name: 粉碎灵魂
+  source: cast
+  name_en: Crush Souls
+- id: 1251772
+  name: 回流充能
+  source: cast
+  name_en: Reflux Charge
+- id: 1257509
+  name: 核闪引爆
+  source: cast
+  name_en: Corespark Detonation
+- id: 1249027
+  name: 蚀光步伐
+  source: cast
+  name_en: Eclipsing Step
+- id: 1264439
+  name: 光痕耀斑
+  source: cast
+- id: 1253855
+  name: 辉熠消散
+  source: cast
+  name_en: Brilliant Dispersion
+- id: 1257601
+  name: 神圣诡计
+  source: cast
+  name_en: Divine Guile
+- id: 1265419
+  name: 绝望音符
+  source: cast
+  name_en: Notes of Despair
+- id: 1265421
+  name: 绝望哀歌
+  source: cast
+  name_en: Dirge of Despair
+- id: 1265463
+  name: 不谐射线
+  source: cast
+  name_en: Discordant Beam
+- id: 1261808
+  source: damage
+  name: 辐射之寒
+  name_en: Siphoning Chill
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 1253368
+  source: damage
+  name: 爆燃追击
+  name_en: Burning Pursuit
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 1285509
+  source: damage
+  name: 灼热之火
+  name_en: Blistering Fire
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 389011
+  source: damage
+  name: 势不可挡
+  name_en: Overwhelming Power
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 1219491
+  source: damage
+  name: 衰弱尖啸
+  name_en: Debilitating Shriek
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 1270620
+  source: damage
+  name: 烈焰新星
+  name_en: Flame Nova
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 468221
+  source: damage
+  name: 集结怒吼
+  name_en: Rallying Bellow
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 1254595
+  source: damage
+  name: 能量释放
+  name_en: Energy Release
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 1246446
+  source: damage
+  name: 虚无反噬
+  name_en: Null Reaction
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 1260648
+  source: damage
+  name: 弹幕射击
+  name_en: Barrage
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 1263735
+  source: damage
+  name: 死疽融合
+  name_en: Necrotic Convergence
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 1251813
+  source: damage
+  name: 萦绕恐惧
+  name_en: Lingering Dread
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 1271433
+  source: damage
+  name: 光痕耀斑
+  name_en: Lightscar Flare
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+- id: 1257613
+  source: damage
+  name: 神圣诡计
+  name_en: Divine Guile
+  dedup_ms: 10000
+  once: true
+  damage_display: target
+monk_cds:
+  Invoke Chi-Ji, the Red Crane: 赤精
+  Life Cocoon: 命茧
+  Revival: 还魂
+  443028:
+    name: 天神御身
+    name_en: Celestial Conduit
+  443592:
+    name: 众神聚心
+    name_en: Unity Within
+  116680:
+    name: 雷光聚神茶
+    name_en: Thunder Focus Tea
+  124682:
+    name: 氤氲之雾
+    name_en: Enveloping Mist
+personal_defensives:
+  48707:
+    name: 反魔法护罩(DK)
+    name_en: Anti-Magic Shell
+  48792:
+    name: 冰封之韧(DK)
+    name_en: Icebound Fortitude
+  198589:
+    name: 疾影(DH)
+    name_en: Blur
+  108271:
+    name: 星界转移(萨满)
+    name_en: Astral Shift
+  358267:
+    name: 悬空
+    name_en: Hover
+  363916:
+    name: 鳞片
+    name_en: Obsidian Scales
+  120954:
+    name: 壮胆酒
+    name_en: Fortifying Brew
+raid_defensives:
+  51052:
+    name: 反魔法领域(DK)
+    name_en: Anti-Magic Zone
+  196718:
+    name: 黑暗(DH)
+    name_en: Darkness
+  374227:
+    name: 微风
+    name_en: Zephyr
+consumables:
+- id: 1234768
+  name: 大红(生命药水)
+  source: healing
+  once: false
+  name_en: Silvermoon Health Potion
+- id: 1236616
+  name: 圣光潜力
+  source: buff
+  once: false
+  name_en: Light's Potential
+- id: 1236994
+  name: 鲁莽药水
+  source: buff
+  once: false
+  name_en: Potion of Recklessness
+- id: 1263725
+  name: 光盲圣怒道标
+  source: damage
+  dedup_ms: 10000
+  once: true
+  name_en: Beacon of Lightblind Wrath
+- id: 58984
+  source: healing
+  once: false
+  name: 影遁
+  name_en: Shadowmeld
+dungeons:
+- id: pit_of_saron
+  name: 萨隆矿坑
+  name_en: Pit of Saron
+  aliases:
+  - 萨隆矿坑
+  bosses:
+  - id: 熔炉之主加弗斯特
+    name: 熔炉之主加弗斯特
+    name_en: Forgemaster Garfrost
+    encounterID: 1999
+    aliases:
+    - 熔炉之主加弗斯特
+    skills:
+    - id: 1261299
+      name: 投掷萨隆邪铁
+      source: cast
+      name_en: Throw Saronite
+    - id: 1261546
+      name: 碎矿猛击
+      source: cast
+      name_en: Orebreaker
+    - id: 1262029
+      name: 冰川过载
+      source: cast
+      name_en: Glacial Overload
+    - id: 1261847
+      name: 寒晶践踏
+      source: cast
+      name_en: Cryostomp
+    - id: 1261808
+      source: damage
+      name: 辐射之寒
+      name_en: Siphoning Chill
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+  - id: 伊克和科瑞克
+    name: 伊克和科瑞克
+    name_en: Ick and Krick
+    encounterID: 2001
+    aliases:
+    - 伊克和科瑞克
+    skills:
+    - id: 1264027
+      name: 暗影转移
+      source: cast
+      name_en: Shade Shift
+    - id: 1264336
+      name: 瘟疫喷射
+      source: cast
+      name_en: Plague Expulsion
+  - id: 天灾领主泰兰努斯
+    name: 天灾领主泰兰努斯
+    name_en: Scourgelord Tyrannus
+    encounterID: 2000
+    aliases:
+    - 天灾领主泰兰努斯
+    skills:
+    - id: 1276648
+      name: 骸骨灌注
+      source: cast
+      name_en: Bone Infusion
+    - id: 1262745
+      name: 白霜冲击
+      source: cast
+      name_en: Rime Blast
+    - id: 1263406
+      name: 亡者大军
+      source: cast
+      name_en: Army of the Dead
+- id: skyreach
+  name: 通天峰
+  name_en: Skyreach
+  aliases:
+  - 通天峰
+  bosses:
+  - id: 兰吉特
+    name: 兰吉特
+    name_en: Ranjit
+    encounterID: 1698
+    aliases:
+    - 兰吉特
+    skills:
+    - id: 1252690
+      name: 疾风奔涌
+      source: cast
+      name_en: Gale Surge
+    - id: 153757
+      name: 散刃
+      source: cast
+      name_en: Fan of Blades
+  - id: 阿拉卡纳斯
+    name: 阿拉卡纳斯
+    name_en: Araknath
+    encounterID: 1699
+    aliases:
+    - 阿拉卡纳斯
+    skills:
+    - id: 1287905
+      name: 光线
+      source: damage
+      dedup_ms: 10000
+      once: true
+      name_en: Light Ray
+    - id: 154135
+      name: 超级新星
+      source: cast
+      name_en: Supernova
+  - id: 鲁克兰
+    name: 鲁克兰
+    name_en: Rukhran
+    encounterID: 1700
+    aliases:
+    - 鲁克兰
+    skills:
+    - id: 1253510
+      name: 曙光
+      source: cast
+      name_en: Sunbreak
+    - id: 1253368
+      source: damage
+      name: 爆燃追击
+      name_en: Burning Pursuit
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+  - id: 高阶贤者维里克斯
+    name: 高阶贤者维里克斯
+    name_en: High Sage Viryx
+    encounterID: 1701
+    aliases:
+    - 高阶贤者维里克斯
+    skills:
+    - id: 1253538
+      name: 灼烧射线
+      source: cast
+      name_en: Scorching Ray
+- id: algethar_academy
+  name: 艾杰丝亚学院
+  name_en: Algeth'ar Academy
+  aliases:
+  - 艾杰丝亚学院
+  bosses:
+  - id: 维克萨姆斯
+    name: 维克萨姆斯
+    name_en: Vexamus
+    encounterID: 2562
+    aliases:
+    - 维克萨姆斯
+    skills:
+    - id: 386173
+      name: 法力炸弹
+      source: cast
+      name_en: Mana Bombs
+    - id: 388537
+      name: 奥术裂隙
+      source: cast
+      name_en: Arcane Fissure
+  - id: 茂林古树
+    name: 茂林古树
+    name_en: Overgrown Ancient
+    encounterID: 2563
+    aliases:
+    - 茂林古树
+    skills:
+    - id: 396716
+      name: 皲皮
+      source: damage
+      dedup_ms: 10000
+      once: true
+      name_en: Splinterbark
+    - id: 388923
+      name: 爆发苏醒
+      source: cast
+      name_en: Burst Forth
+  - id: 克罗兹
+    name: 克罗兹
+    name_en: Crawth
+    encounterID: 2564
+    aliases:
+    - 克罗兹
+    skills:
+    - id: 376997
+      name: 狂野啄击
+      source: cast
+      name_en: Savage Peck
+    - id: 377004
+      name: 震耳尖啸
+      source: cast
+      name_en: Deafening Screech
+    - id: 1285509
+      source: damage
+      name: 灼热之火
+      name_en: Blistering Fire
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+  - id: 多拉苟萨的回想
+    name: 多拉苟萨的回想
+    name_en: Echo of Doragosa
+    encounterID: 2565
+    aliases:
+    - 多拉苟萨的回想
+    skills:
+    - id: 374350
+      name: 能量炸弹
+      source: cast
+      name_en: Energy Bomb
+    - id: 389011
+      source: damage
+      name: 势不可挡
+      name_en: Overwhelming Power
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+- id: tower_of_windrunner
+  name: 风行者之塔
+  name_en: Tower of Windrunner
+  aliases:
+  - 风行者之塔
+  bosses:
+  - id: 烬晓
+    name: 烬晓
+    encounterID: 3056
+    aliases:
+    - 烬晓
+    skills:
+    - id: 466556
+      name: 炽焰腾流
+      source: cast
+      name_en: Flaming Updraft
+    - id: 467040
+      name: 燃烧烈风
+      source: cast
+      name_en: Burning Gale
+    name_en: Emberdawn
+  - id: 被遗弃的二人组
+    name: 被遗弃的二人组
+    encounterID: 3057
+    aliases:
+    - 被遗弃的二人组
+    skills:
+    - id: 472745
+      name: 飞溅喷吐
+      source: cast
+      name_en: Splattering Spew
+    - id: 472736
+      name: 衰弱尖啸
+      source: cast
+      name_en: Debilitating Shriek
+    - id: 1219491
+      source: damage
+      name: 衰弱尖啸
+      name_en: Debilitating Shriek
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+    name_en: Derelict Duo
+  - id: 指挥官克洛鲁科
+    name: 指挥官克洛鲁科
+    encounterID: 3058
+    aliases:
+    - 指挥官克洛鲁科
+    skills:
+    - id: 472053
+      name: 无情跳跃
+      source: cast
+      name_en: Reckless Leap
+    - id: 1253026
+      name: 破胆怒吼
+      source: cast
+      name_en: Intimidating Shout
+    - id: 1270620
+      source: damage
+      name: 烈焰新星
+      name_en: Flame Nova
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+    - id: 468221
+      source: damage
+      name: 集结怒吼
+      name_en: Rallying Bellow
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+    name_en: Commander Kroluk
+  - id: 无眠之心
+    name: 无眠之心
+    encounterID: 3059
+    aliases:
+    - 无眠之心
+    skills:
+    - id: 468429
+      name: 疾风狙击
+      source: cast
+      name_en: Bullseye Windblast
+    - id: 1283371
+      name: 飓风腾跃
+      source: damage
+      dedup_ms: 10000
+      once: true
+      name_en: Squall Leap
+    - id: 1253986
+      name: 劲风射击
+      source: cast
+      name_en: Gust Shot
+    - id: 474528
+      name: 飞矢烈风
+      source: cast
+      name_en: Bolt Gale
+    name_en: Restless Heart
+- id: magisters_terrace
+  name: 魔导师平台
+  name_en: Magisters' Terrace
+  aliases:
+  - 魔导师平台
+  bosses:
+  - id: 奥能金刚库斯托斯
+    name: 奥能金刚库斯托斯
+    name_en: Arcanotron Custos
+    encounterID: 3071
+    aliases:
+    - 奥能金刚库斯托斯
+    skills:
+    - id: 1214081
+      name: 奥术驱除
+      source: cast
+      name_en: Arcane Expulsion
+    - id: 1214032
+      name: 虚灵枷锁
+      source: cast
+    - id: 1254595
+      source: damage
+      name: 能量释放
+      name_en: Energy Release
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+  - id: 瑟拉奈尔_日鞭
+    name: 瑟拉奈尔·日鞭
+    name_en: Seranel Sunlash
+    encounterID: 3072
+    aliases:
+    - 瑟拉奈尔·日鞭
+    skills:
+    - id: 1225792
+      name: 符文印记
+      source: cast
+      name_en: Runic Mark
+    - id: 1224903
+      name: 镇压立场
+      source: cast
+      name_en: Suppression Zone
+    - id: 1225193
+      name: 静默浪潮
+      source: cast
+      name_en: Wave of Silence
+    - id: 1246446
+      source: damage
+      name: 虚无反噬
+      name_en: Null Reaction
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+  - id: 吉美尔鲁斯
+    name: 吉美尔鲁斯
+    encounterID: 3073
+    aliases:
+    - 吉美尔鲁斯
+    skills:
+    - id: 1284954
+      name: 寰宇刺击
+      source: cast
+      name_en: Cosmic Sting
+    - id: 1224299
+      name: 星界束缚
+      source: cast
+      name_en: Astral Grasp
+    name_en: Gemellus
+  - id: 迪詹崔乌斯
+    name: 迪詹崔乌斯
+    encounterID: 3074
+    aliases:
+    - 迪詹崔乌斯
+    skills:
+    - id: 1280113
+      name: 庞大碎片
+      source: cast
+      name_en: Hulking Fragment
+    - id: 1215893
+      name: 贪噬之熵
+      source: cast
+    - id: 1215087
+      name: 不稳定的虚空精华
+      source: cast
+      name_en: Unstable Void Essence
+    name_en: Degentrius
+- id: mana_tombs
+  name: 迈萨拉洞窟
+  name_en: Mana-Tombs
+  aliases:
+  - 迈萨拉洞窟
+  bosses:
+  - id: 姆罗金和内克拉克斯
+    name: 姆罗金和内克拉克斯
+    encounterID: 3212
+    aliases:
+    - 姆罗金和内克拉克斯
+    skills:
+    - id: 1246666
+      name: 感染羽翼
+      source: cast
+      name_en: Infected Pinions
+    - id: 1260643
+      name: 弹幕射击
+      source: cast
+      name_en: Barrage
+    - id: 1260648
+      source: damage
+      name: 弹幕射击
+      name_en: Barrage
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+    name_en: Muro'jin and Nekraxx
+  - id: 沃达扎
+    name: 沃达扎
+    encounterID: 3213
+    aliases:
+    - 沃达扎
+    skills:
+    - id: 1251204
+      name: 束缚幻影
+      source: cast
+      name_en: Wrest Phantoms
+    - id: 1264989
+      name: 凋零瘴气
+      source: damage
+      dedup_ms: 10000
+      once: true
+      name_en: Withering Miasma
+    - id: 1248879
+      name: 死噬容器
+      source: damage
+      dedup_ms: 10000
+      once: true
+      name_en: Deathgorged Vessel
+    - id: 1250708
+      name: 死疽融合
+      source: cast
+      name_en: Necrotic Convergence
+    - id: 1263735
+      source: damage
+      name: 死疽融合
+      name_en: Necrotic Convergence
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+    - id: 1251813
+      source: damage
+      name: 萦绕恐惧
+      name_en: Lingering Dread
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+    name_en: Vordaza
+  - id: 拉克图尔_聚魂之器
+    name: 拉克图尔，聚魂之器
+    encounterID: 3214
+    aliases:
+    - 拉克图尔，聚魂之器
+    skills:
+    - id: 1251023
+      name: 碎魂者
+      source: cast
+      name_en: Spiritbreaker
+    - id: 1252676
+      name: 粉碎灵魂
+      source: cast
+      name_en: Crush Souls
+    name_en: Rak'tul, Vessel of Souls
+- id: the_nexus
+  name: 节点希纳斯
+  name_en: The Nexus
+  aliases:
+  - 节点希纳斯
+  bosses:
+  - id: 核技工程长卡斯雷瑟
+    name: 核技工程长卡斯雷瑟
+    encounterID: 3328
+    aliases:
+    - 核技工程长卡斯雷瑟
+    skills:
+    - id: 1251772
+      name: 回流充能
+      source: cast
+      name_en: Reflux Charge
+    - id: 1257509
+      name: 核闪引爆
+      source: cast
+      name_en: Corespark Detonation
+    name_en: Chief Corewright Kasreth
+  - id: 核心首位奈萨拉
+    name: 核心首位奈萨拉
+    encounterID: 3332
+    aliases:
+    - 核心首位奈萨拉
+    skills:
+    - id: 1249027
+      name: 蚀光步伐
+      source: cast
+      name_en: Eclipsing Step
+    - id: 1264439
+      name: 光痕耀斑
+      source: cast
+    - id: 1271433
+      source: damage
+      name: 光痕耀斑
+      name_en: Lightscar Flare
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+    name_en: Corewarden Nysarra
+  - id: 洛萨克森
+    name: 洛萨克森
+    encounterID: 3333
+    aliases:
+    - 洛萨克森
+    skills:
+    - id: 1253855
+      name: 辉熠消散
+      source: cast
+      name_en: Brilliant Dispersion
+    - id: 1257601
+      name: 神圣诡计
+      source: cast
+      name_en: Divine Guile
+    - id: 1257613
+      source: damage
+      name: 神圣诡计
+      name_en: Divine Guile
+      dedup_ms: 10000
+      once: true
+      damage_display: target
+    name_en: Lothraxion
+- id: seat_of_the_triumvirate
+  name: 执政团之座
+  name_en: The Seat of the Triumvirate
+  aliases:
+  - 执政团之座
+  bosses:
+  - id: boss_1
+    name: Zuraal the Ascended
+    name_en: Zuraal the Ascended
+    encounterID: 2065
+    aliases:
+    - Zuraal the Ascended
+    - 祖拉尔
+    skills:
+    - id: 1263297
+      name: 崩解虚空
+      source: cast
+      name_en: Crashing Void
+    - id: 1263399
+      name: 渗透猛击
+      source: cast
+      name_en: Oozing Slam
+  - id: boss_2
+    name: Saprish
+    name_en: Saprish
+    encounterID: 2066
+    aliases:
+    - Saprish
+    - 萨普瑞什
+    skills:
+    - id: 245742
+      name: 暗影突袭
+      source: damage
+      dedup_ms: 10000
+      once: true
+      name_en: Shadow Pounce
+    - id: 1263523
+      name: 过载
+      source: cast
+      name_en: Overload
+  - id: boss_3
+    name: Viceroy Nezhar
+    name_en: Viceroy Nezhar
+    encounterID: 2067
+    aliases:
+    - Viceroy Nezhar
+    - 总督奈扎尔
+    skills:
+    - id: 1263542
+      name: 群体虚空灌注
+      source: cast
+      name_en: Mass Void Infusion
+    - id: 1263538
+      name: 暗影触须
+      source: cast
+      name_en: Umbral Tentacles
+    - id: 1265030
+      name: 虚空风暴
+      source: damage
+      dedup_ms: 10000
+      once: true
+      name_en: Void Storm
+      damage_display: interval
+  - id: boss_4
+    name: L'ura
+    name_en: L'ura
+    encounterID: 2068
+    aliases:
+    - L'ura
+    - 鲁拉
+    skills:
+    - id: 1265419
+      name: 绝望音符
+      source: cast
+      name_en: Notes of Despair
+    - id: 1265421
+      name: 绝望哀歌
+      source: cast
+      name_en: Dirge of Despair
+    - id: 1265463
+      name: 不谐射线
+      source: cast
+      name_en: Discordant Beam

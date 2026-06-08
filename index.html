@@ -1,0 +1,4506 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I Don't Know Less Than You</title>
+  <script src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
+  <link href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #181818;
+      --panel: #222;
+      --panel-2: #292929;
+      --line: #444;
+      --text: #eee;
+      --muted: #aaa;
+      --accent: #f39c12;
+      --boss: #e74c3c;
+      --monk: #27ae60;
+      --def: #3498db;
+      --item: #9b59b6;
+    }
+
+    body {
+      margin: 20px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      text-align: center;
+      color: var(--accent);
+      font-size: 22px;
+    }
+
+    .title-gif-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 0 0 14px;
+    }
+
+    .title-gif {
+      width: 220px;
+      max-width: min(70vw, 220px);
+      height: auto;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #111;
+    }
+
+    .panel {
+      margin-bottom: 14px;
+      padding: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .control-row,
+    .fight-row {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .fight-row {
+      margin-bottom: 0;
+    }
+
+    input,
+    select,
+    button {
+      height: 36px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 0 10px;
+      color: var(--text);
+      background: #2d2d2d;
+      border: 1px solid #555;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    button {
+      min-width: 120px;
+      padding: 0 14px;
+      color: #1a1a1a;
+      background: var(--accent);
+      border: 0;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      color: var(--text);
+      background: #555;
+    }
+
+    button.active {
+      color: #1a1a1a;
+      background: var(--accent);
+    }
+
+    button:disabled,
+    select:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .help,
+    .status {
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    .help {
+      margin-top: 8px;
+    }
+
+    .status {
+      min-height: 20px;
+      margin-bottom: 16px;
+    }
+
+    .app-statusbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      flex-wrap: wrap;
+    }
+
+    .status-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .status-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      padding: 0 9px;
+      border: 1px solid #555;
+      border-radius: 999px;
+      color: var(--muted);
+      background: #252525;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #777;
+    }
+
+    .status-pill.ok {
+      color: #bff2cf;
+      border-color: rgba(39, 174, 96, 0.75);
+    }
+
+    .status-pill.ok::before {
+      background: var(--monk);
+    }
+
+    .status-pill.bad {
+      color: #ffc9c9;
+      border-color: rgba(231, 76, 60, 0.8);
+    }
+
+    .status-pill.bad::before {
+      background: var(--boss);
+    }
+
+    .status-pill.warn {
+      color: #ffe7a4;
+      border-color: rgba(241, 196, 15, 0.8);
+    }
+
+    .status-pill.warn::before {
+      background: #f1c40f;
+    }
+
+    .app-version {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .setup-panel {
+      display: none;
+    }
+
+    .setup-title {
+      color: var(--accent);
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .setup-text {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .settings-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(220px, 2fr);
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .setup-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .setup-meta div {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .token-row {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .token-state {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    #filter-panel,
+    #coverage-panel,
+    #config-panel {
+      display: none;
+    }
+
+    .config-summary {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .config-diagnostics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      grid-column: 1 / -1;
+      margin: -4px 0 12px;
+    }
+
+    .config-diagnostic {
+      padding: 5px 9px;
+      border: 1px solid #5c5332;
+      border-radius: 999px;
+      color: #f3d992;
+      background: rgba(255, 160, 0, 0.08);
+      font-size: 12px;
+    }
+
+    .config-editor {
+      margin-bottom: 12px;
+      padding: 10px;
+      background: var(--panel-2);
+      border: 1px solid #3d3d3d;
+      border-radius: 6px;
+    }
+
+    .config-editor-grid {
+      display: grid;
+      grid-template-columns: minmax(160px, 1.1fr) minmax(160px, 1.1fr) minmax(140px, 1fr) minmax(100px, 0.6fr) minmax(100px, 0.6fr) minmax(120px, 0.7fr) auto;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .config-editor-grid.support-editor-grid {
+      grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) minmax(120px, 0.7fr) minmax(130px, 0.7fr) auto;
+    }
+
+    .config-file-tools {
+      margin-bottom: 12px;
+    }
+
+    .config-file-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .config-editor input,
+    .config-editor select {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .config-editor input.field-error,
+    .config-editor select.field-error {
+      border-color: #ff6b6b;
+      box-shadow: 0 0 0 1px rgba(255, 107, 107, 0.35);
+    }
+
+    .config-editor-state {
+      min-height: 18px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: pre-line;
+    }
+
+    .config-editor-state.ok {
+      color: #66d482;
+    }
+
+    .config-editor-state.error {
+      color: #ff6b6b;
+    }
+
+    .spell-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 28px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .spell-preview.ok {
+      color: var(--text);
+    }
+
+    .spell-preview.warn {
+      color: var(--accent);
+    }
+
+    .spell-preview-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      border: 1px solid #555;
+      object-fit: cover;
+      background: #111;
+      flex: 0 0 auto;
+    }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(240px, 1fr));
+      gap: 10px;
+    }
+
+    .config-card {
+      padding: 10px;
+      background: var(--panel-2);
+      border: 1px solid #3d3d3d;
+      border-radius: 6px;
+      min-height: 110px;
+    }
+
+    .config-card h3 {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 14px;
+    }
+
+    .config-scroll {
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .config-details {
+      border-top: 1px solid #3d3d3d;
+      padding: 7px 0;
+    }
+
+    .config-details:first-child {
+      border-top: 0;
+    }
+
+    .config-details summary {
+      cursor: pointer;
+      color: #eee;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .config-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 7px;
+      margin-left: 16px;
+      color: #ddd;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .config-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: fit-content;
+      padding: 2px 7px;
+      border: 1px solid #555;
+      border-radius: 999px;
+      background: #202020;
+    }
+
+    .config-inline-select {
+      width: auto;
+      min-width: 92px;
+      height: 24px;
+      padding: 0 6px;
+      font-size: 12px;
+    }
+
+    .config-delete {
+      min-width: auto;
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      border-radius: 999px;
+      color: #ddd;
+      background: #4b4b4b;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .config-delete:hover {
+      color: #fff;
+      background: #b33a3a;
+    }
+
+    .config-muted {
+      color: var(--muted);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-title {
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .actions,
+    .mode-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mode-group {
+      margin: 8px 0;
+    }
+
+    .mode-label {
+      margin-right: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .guide-panel {
+      border-color: #4f4f4f;
+    }
+
+    .guide-title {
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .guide-steps {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .guide-step {
+      padding: 5px 9px;
+      border: 1px solid #444;
+      border-radius: 999px;
+      background: #202020;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .about-card {
+      padding: 10px;
+      background: var(--panel-2);
+      border: 1px solid #3d3d3d;
+      border-radius: 6px;
+    }
+
+    .summary-line {
+      margin: 8px 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .empty-state {
+      padding: 18px;
+      color: var(--muted);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      text-align: center;
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+
+    .timeline-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .timeline-controls input[type="range"] {
+      width: 160px;
+      height: auto;
+      padding: 0;
+    }
+
+    .timeline-controls label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .detail-layer-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      width: 100%;
+      margin-top: 2px;
+    }
+
+    .layer-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .layer-option .layer-main {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .layer-option .layer-reverse {
+      color: var(--muted);
+      font-size: 12px;
+      padding-left: 8px;
+      border-left: 1px solid var(--line);
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 10px 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      border: 1px solid currentColor;
+      box-sizing: border-box;
+      background: #1b1b1b;
+    }
+
+    .legend-boss { color: var(--boss); }
+    .legend-monk { color: var(--monk); }
+    .legend-def { color: var(--def); }
+    .legend-item-kind { color: #f1c40f; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 1000;
+    }
+
+    .modal {
+      width: min(680px, 100%);
+      background: #2b2b2b;
+      border: 1px solid #555;
+      border-radius: 8px;
+      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #444;
+    }
+
+    .modal-title {
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      background: #555;
+      color: #fff;
+      font-size: 18px;
+    }
+
+    .modal-body {
+      padding: 12px 14px 14px;
+    }
+
+    .modal-note {
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mrt-preview {
+      width: 100%;
+      min-height: 220px;
+      resize: vertical;
+      padding: 10px;
+      box-sizing: border-box;
+      background: #1f1f1f;
+      color: #f2f2f2;
+      border: 1px solid #555;
+      border-radius: 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .actions button,
+    .mode-row button {
+      min-width: auto;
+      height: 30px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    .boss-filter {
+      padding: 10px;
+      background: var(--panel-2);
+      border: 1px solid #3d3d3d;
+      border-radius: 6px;
+      min-height: 170px;
+      max-height: 210px;
+      overflow: hidden;
+    }
+
+    .filter-title {
+      margin-bottom: 8px;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .boss-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 150px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .boss-filter-row {
+      border-top: 1px solid #3d3d3d;
+      padding-top: 8px;
+    }
+
+    .boss-filter-row:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .boss-filter-row summary {
+      cursor: pointer;
+      color: #ddd;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .boss-filter-row label,
+    .skill-list label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #ddd;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .boss-skill-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-left: 22px;
+      margin-top: 6px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .filter-group {
+      padding: 10px;
+      background: var(--panel-2);
+      border: 1px solid #3d3d3d;
+      border-radius: 6px;
+      min-height: 170px;
+      max-height: 210px;
+      overflow: hidden;
+    }
+
+    .filter-kind {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .skill-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 150px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+      height: auto;
+    }
+
+    .boss-container {
+      margin-bottom: 40px;
+      padding: 15px;
+      margin-right: 28px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .boss-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 15px;
+      color: #ff6b6b;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .boss-title-text {
+      flex: 0 0 auto;
+    }
+
+    .timeline-frame {
+      height: 260px;
+      overflow: hidden;
+    }
+
+    .timeline-icon {
+      width: 18px;
+      height: 18px;
+      margin-right: 4px;
+      object-fit: cover;
+      border-radius: 3px;
+      vertical-align: middle;
+    }
+
+    .timeline-item-content {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .overview-item {
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+      padding: 0 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+      box-sizing: border-box;
+    }
+
+    .overview-item .timeline-item-content {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .overview-item .timeline-icon {
+      width: 30px;
+      height: 30px;
+      margin-right: 0;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-sizing: border-box;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    .overview-item.kind-BOSS .timeline-icon { border-color: var(--boss); }
+    .overview-item.kind-MONK .timeline-icon { border-color: var(--monk); }
+    .overview-item.kind-DEF .timeline-icon { border-color: var(--def); }
+    .overview-item.kind-ITEM .timeline-icon { border-color: #f1c40f; }
+    .overview-item.kind-DEATH .death-marker { border-color: #ff6b6b; }
+
+    .overview-item:hover .timeline-icon {
+      transform: scale(1.25);
+      filter: brightness(1.12);
+    }
+
+    .death-marker {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--death-color, #ff6b6b);
+      border-radius: 50%;
+      background: #151515;
+      color: var(--death-color, #fff);
+      font-size: 10px;
+      font-weight: 900;
+      line-height: 1;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+      box-sizing: border-box;
+    }
+
+    .simple-event.overview-death-event {
+      top: 14px;
+      z-index: 5;
+    }
+
+    .overview-fallback-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: 0.9;
+      display: inline-block;
+    }
+
+    .coverage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .coverage-title {
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .coverage-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+
+    .coverage-controls input {
+      width: 64px;
+      height: 30px;
+      text-align: center;
+    }
+
+    .coverage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .coverage-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 10px;
+      padding: 10px;
+      background: var(--panel-2);
+      border: 1px solid #3d3d3d;
+      border-radius: 6px;
+    }
+
+    .coverage-boss {
+      color: #ffb3b3;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .coverage-boss strong {
+      display: block;
+      color: #ff6b6b;
+      font-size: 14px;
+    }
+
+    .coverage-supports {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .coverage-chip,
+    .coverage-empty {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      border-radius: 4px;
+      padding: 4px 7px;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .coverage-chip {
+      color: #fff;
+    }
+
+    .coverage-empty {
+      color: #ffb3b3;
+      background: #4a2525;
+      border: 1px solid #704040;
+    }
+
+    .vis-timeline {
+      border: 1px solid var(--line);
+      background-color: #262626;
+      border-radius: 4px;
+    }
+
+    .vis-item {
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 8px;
+    }
+
+    .vis-label {
+      color: #ddd;
+      font-weight: bold;
+      background-color: #2d2d2d !important;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .vis-time-axis .vis-text {
+      color: #aaa;
+      font-size: 11px;
+    }
+
+    .vis-grid {
+      border-color: #383838;
+    }
+
+    .vis-panel.vis-bottom,
+    .vis-panel.vis-center,
+    .vis-panel.vis-left,
+    .vis-panel.vis-right,
+    .vis-panel.vis-top {
+      border-color: var(--line);
+    }
+
+    .vis-tooltip {
+      background-color: #333 !important;
+      color: #fff !important;
+      border: 1px solid #555 !important;
+      border-radius: 6px !important;
+      padding: 10px !important;
+      font-size: 13px !important;
+      line-height: 1.6;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .kind-BOSS { background-color: var(--boss) !important; }
+    .kind-MONK { background-color: var(--monk) !important; }
+    .kind-DEF { background-color: var(--def) !important; }
+    .kind-ITEM { background-color: var(--item) !important; }
+
+    .overview-item.kind-BOSS,
+    .overview-item.kind-MONK,
+    .overview-item.kind-DEF,
+    .overview-item.kind-ITEM {
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .vis-foreground .vis-group {
+      border-bottom: 1px solid #383838;
+    }
+
+    .simple-timeline {
+      position: relative;
+      height: 260px;
+      margin-right: 10px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #262626;
+    }
+
+    .simple-row {
+      position: relative;
+      border-bottom: 1px solid #383838;
+    }
+
+    .simple-row:last-child {
+      border-bottom: none;
+    }
+
+    .simple-row-label {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 124px;
+      height: 100%;
+      padding: 8px 6px;
+      box-sizing: border-box;
+      color: #ddd;
+      background: #2d2d2d;
+      font-weight: 700;
+      z-index: 2;
+    }
+
+    .simple-plot {
+      position: absolute;
+      left: 124px;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+    }
+
+    .simple-plot::-webkit-scrollbar {
+      display: none;
+    }
+
+    .simple-content {
+      position: relative;
+      height: 100%;
+      min-width: 100%;
+    }
+
+    .simple-grid-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: #555;
+      opacity: 0.7;
+    }
+
+    .health-overlay {
+      position: absolute;
+      left: 124px;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .health-content {
+      position: relative;
+      height: 100%;
+      min-width: 100%;
+    }
+
+    .health-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .resource-layer {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .resource-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .resource-area {
+      opacity: 0.46;
+      filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.55));
+    }
+
+    .resource-line {
+      fill: none;
+      stroke-width: 1.5;
+      opacity: 0.78;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .health-line {
+      fill: none;
+      stroke-width: 2;
+      opacity: 0.85;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.65));
+      transition: opacity 0.12s ease, stroke-width 0.12s ease, filter 0.12s ease;
+      vector-effect: non-scaling-stroke;
+      position: relative;
+      z-index: 2;
+    }
+
+    .detail-content.has-highlight .health-line {
+      opacity: 0.16;
+    }
+
+    .detail-content.has-highlight .health-line.highlight {
+      opacity: 1;
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 6px currentColor);
+    }
+
+    .health-line.hidden-player {
+      display: none;
+    }
+
+    .detail-timeline {
+      position: relative;
+      height: 300px;
+      margin-right: 10px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background:
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px) 0 20% / 100% 25%,
+        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px) 0 0 / 10% 100%,
+        #101816;
+      scrollbar-width: thin;
+    }
+
+    .detail-content {
+      position: relative;
+      height: 100%;
+      min-width: 100%;
+    }
+
+    .detail-axis {
+      position: sticky;
+      left: 0;
+      top: 0;
+      width: 44px;
+      height: 100%;
+      z-index: 6;
+      pointer-events: none;
+      background: linear-gradient(90deg, rgba(16, 24, 22, 0.92), rgba(16, 24, 22, 0.42), transparent);
+      border-right: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .detail-axis-label {
+      position: absolute;
+      left: 4px;
+      transform: translateY(-50%);
+      color: rgba(230, 230, 230, 0.82);
+      font-size: 11px;
+      line-height: 1;
+      text-shadow: 0 1px 2px #000;
+    }
+
+    .detail-event {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 4;
+    }
+
+    .health-legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex: 1 1 auto;
+      pointer-events: auto;
+    }
+
+    .health-legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.28);
+      color: var(--player-color, #ddd);
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0.9;
+      user-select: none;
+    }
+
+    .health-legend-chip input {
+      margin: 0;
+      accent-color: currentColor;
+    }
+
+    .health-legend-chip::before {
+      content: "";
+      width: 16px;
+      height: 2px;
+      background: currentColor;
+      border-radius: 999px;
+    }
+
+    .health-legend-chip.active {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 10px currentColor;
+    }
+
+    .health-legend-chip.hidden-player {
+      --player-color: #777;
+      border-color: #666;
+      opacity: 0.55;
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: none;
+    }
+
+    .health-legend-chip.hidden-player::before {
+      background: #777;
+    }
+
+    .detail-health-note {
+      position: absolute;
+      left: 10px;
+      bottom: 8px;
+      z-index: 5;
+      color: var(--muted);
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    .detail-resource-notes {
+      position: absolute;
+      right: 12px;
+      bottom: 8px;
+      z-index: 6;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      pointer-events: none;
+    }
+
+    .detail-resource-note {
+      padding: 3px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.45);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .simple-time-label {
+      position: absolute;
+      bottom: 2px;
+      transform: translateX(-50%);
+      color: #ddd;
+      font-size: 11px;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .simple-event {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      z-index: 3;
+    }
+
+    .simple-event.detail-item {
+      min-width: 88px;
+      max-width: 180px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 1180px) {
+      .filter-grid {
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+      }
+    }
+
+    @media (max-width: 860px) {
+      .control-row,
+      .fight-row,
+      .settings-row,
+      .filter-grid,
+      .config-grid,
+      .about-grid,
+      .config-editor-grid,
+      .coverage-row,
+      .token-row {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>I Don't Know Less Than You</h1>
+  <div class="title-gif-wrap">
+    <img class="title-gif" src="/title.gif" alt="" onerror="this.parentElement.style.display='none'">
+  </div>
+
+  <div id="guide-panel" class="panel guide-panel">
+    <div class="guide-title">Quick start</div>
+    <div class="guide-steps">
+      <span class="guide-step">1. Save WCL token in Settings</span>
+      <span class="guide-step">2. Paste a report URL</span>
+      <span class="guide-step">3. Load fights and choose one pull</span>
+      <span class="guide-step">4. Build timeline</span>
+      <span class="guide-step">5. Use Config to maintain tracked skills</span>
+    </div>
+  </div>
+
+  <div class="app-statusbar">
+    <div class="status-pills">
+      <span id="token-badge" class="status-pill warn">Token checking</span>
+      <span id="config-badge" class="status-pill warn">Config checking</span>
+      <span id="version-label" class="app-version">Version checking...</span>
+    </div>
+    <div class="status-actions">
+      <button id="about-button" class="secondary" type="button">About</button>
+      <button id="config-button" class="secondary" type="button">Config</button>
+      <button id="settings-button" class="secondary" type="button">Settings</button>
+    </div>
+  </div>
+
+  <div id="about-panel" class="panel" style="display:none;">
+    <div class="toolbar">
+      <div class="toolbar-title">About</div>
+      <div class="actions">
+        <button id="close-about-button" class="secondary" type="button">Close</button>
+      </div>
+    </div>
+    <div class="about-grid">
+      <div class="about-card">
+        <strong>App</strong>
+        <div id="about-version">Version: checking...</div>
+        <div>Purpose: build healer-friendly WCL timelines.</div>
+      </div>
+      <div class="about-card">
+        <strong>Local files</strong>
+        <div id="about-token-file">Token file: checking...</div>
+        <div id="about-config-file">Config file: checking...</div>
+      </div>
+      <div class="about-card">
+        <strong>Status</strong>
+        <div id="about-token-state">Token: checking...</div>
+        <div id="about-config-state">Config: checking...</div>
+      </div>
+      <div class="about-card">
+        <strong>First aid</strong>
+        <div>Token error: open Settings and save a fresh WCL API token.</div>
+        <div>Config error: open Config and restore backup or import config.yaml.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="setup-panel" class="panel setup-panel">
+    <div class="setup-title">Settings</div>
+    <div class="setup-text">
+      Paste your Warcraft Logs API token here. The app saves it locally and never shows the token value after saving.
+    </div>
+    <div class="settings-row">
+      <label id="language-label" for="language-select">Language</label>
+      <select id="language-select">
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+      </select>
+    </div>
+    <div class="token-row">
+      <input id="token-input" type="password" placeholder="Paste WCL API token" autocomplete="off" spellcheck="false">
+      <button id="save-token-button">Save token</button>
+    </div>
+    <div id="token-state" class="token-state"></div>
+    <div class="setup-meta">
+      <div id="token-file-state">Token file: checking...</div>
+      <div id="config-file-state">Config file: checking...</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="control-row">
+      <input id="log-url" type="url" placeholder="Paste Warcraft Logs report URL" autocomplete="off" spellcheck="false">
+      <button id="fetch-fights-button" class="secondary">Load fights</button>
+    </div>
+    <div class="fight-row">
+      <select id="fight-select" disabled>
+        <option value="">Load fights first</option>
+      </select>
+      <button id="load-button" disabled>Build timeline</button>
+    </div>
+    <div class="help">Paste a report link, load fights, then choose the pull you want to inspect.</div>
+  </div>
+
+  <div id="filter-panel" class="panel">
+    <div class="toolbar">
+      <div class="toolbar-title">Display</div>
+      <div class="actions">
+        <button id="select-all-button" class="secondary">All</button>
+        <button id="clear-all-button" class="secondary">None</button>
+        <button id="copy-axis-button">Copy MRT</button>
+        <button id="download-axis-button">Download MRT</button>
+      </div>
+    </div>
+
+    <div id="view-mode-row" class="mode-row mode-group">
+      <span class="mode-label">View</span>
+      <button id="timeline-view-button" class="secondary active">Timeline</button>
+      <button id="coverage-view-button" class="secondary">Coverage</button>
+    </div>
+
+    <div id="timeline-mode-row" class="mode-row mode-group">
+      <span class="mode-label">Timeline mode</span>
+      <button id="overview-density-button" class="secondary active">Overview</button>
+      <button id="detail-density-button" class="secondary">Detail</button>
+    </div>
+
+    <div id="timeline-controls" class="timeline-controls">
+      <span>Time scale</span>
+      <button id="zoom-out-button" class="secondary" type="button">-</button>
+      <input id="timeline-zoom" type="range" min="1" max="4" step="0.25" value="1">
+      <button id="zoom-in-button" class="secondary" type="button">+</button>
+      <span id="zoom-label">100%</span>
+      <div id="detail-layer-controls" class="detail-layer-controls">
+        <div class="layer-option">
+          <label class="layer-main"><input id="show-health-layer" type="checkbox" checked><span id="health-layer-label">Health lines</span></label>
+          <label class="layer-reverse"><input id="invert-health" type="checkbox"><span id="invert-health-label">Reverse</span></label>
+        </div>
+        <div class="layer-option">
+          <label class="layer-main"><input id="show-damage-layer" type="checkbox"><span id="damage-layer-label">Damage taken</span></label>
+          <label class="layer-reverse"><input id="invert-damage-layer" type="checkbox"><span id="invert-damage-layer-label">Reverse</span></label>
+        </div>
+        <div class="layer-option">
+          <label class="layer-main"><input id="show-healing-layer" type="checkbox"><span id="healing-layer-label">Healing</span></label>
+          <label class="layer-reverse"><input id="invert-healing-layer" type="checkbox"><span id="invert-healing-layer-label">Reverse</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div id="timeline-summary" class="summary-line">No timeline loaded.</div>
+
+    <div class="legend-row" aria-label="Timeline legend">
+      <span class="legend-item legend-boss"><span class="legend-dot"></span>Boss skills</span>
+      <span class="legend-item legend-monk"><span class="legend-dot"></span>治疗CD</span>
+      <span class="legend-item legend-def"><span class="legend-dot"></span>Defensives</span>
+      <span class="legend-item legend-item-kind"><span class="legend-dot"></span>Items/Potions</span>
+    </div>
+
+    <div id="filter-grid" class="filter-grid">
+      <div id="boss-filter" class="boss-filter"></div>
+    </div>
+  </div>
+
+  <div id="coverage-panel" class="panel">
+    <div class="coverage-header">
+      <div class="coverage-title">Coverage check</div>
+      <div class="coverage-controls">
+        <span>Count support skills from</span>
+        <input id="coverage-before" type="number" min="0" max="30" value="8">
+        <span>sec before to</span>
+        <input id="coverage-after" type="number" min="0" max="30" value="3">
+        <span>sec after each boss event</span>
+      </div>
+    </div>
+    <div id="coverage-list" class="coverage-list"></div>
+  </div>
+
+  <div id="config-panel" class="panel">
+    <div class="toolbar">
+      <div class="toolbar-title">Config viewer</div>
+      <div class="actions">
+        <button id="refresh-config-button" class="secondary">Refresh</button>
+        <button id="close-config-button" class="secondary">Close</button>
+      </div>
+    </div>
+    <div class="config-editor config-file-tools">
+      <div class="toolbar-title">Config file</div>
+      <div class="config-file-actions">
+        <button id="export-config-button" type="button">Export config</button>
+        <button id="import-config-button" class="secondary" type="button">Import config</button>
+        <button id="restore-config-button" class="secondary" type="button">Restore backup</button>
+        <button id="repair-config-button" class="secondary" type="button">Sync fallback</button>
+      </div>
+      <input id="import-config-file" type="file" accept=".yaml,.yml,text/yaml,text/plain" hidden>
+      <div id="config-file-tool-state" class="config-editor-state">Export your config before sharing or importing another one.</div>
+    </div>
+    <div class="config-editor">
+      <div id="add-boss-title" class="toolbar-title">Add Boss Skill</div>
+      <div class="config-editor-grid">
+        <select id="config-dungeon-select" aria-label="Dungeon"></select>
+        <select id="config-boss-select" aria-label="Boss"></select>
+        <input id="config-skill-name" type="text" placeholder="Skill name">
+        <input id="config-skill-id" type="number" min="1" placeholder="Spell ID">
+        <select id="config-skill-source" aria-label="Source">
+          <option value="cast">cast</option>
+          <option value="damage">damage</option>
+        </select>
+        <select id="config-damage-display" aria-label="Damage display">
+          <option value="target">target</option>
+          <option value="interval">interval</option>
+          <option value="aura">aura</option>
+        </select>
+        <button id="add-boss-skill-button" type="button">Add skill</button>
+      </div>
+      <div id="config-spell-preview" class="spell-preview"></div>
+      <div id="config-editor-state" class="config-editor-state">Choose a dungeon and boss, then add one tracked boss skill.</div>
+    </div>
+    <div class="config-editor">
+      <div id="add-support-title" class="toolbar-title">Add Support / Item</div>
+      <div class="config-editor-grid support-editor-grid">
+        <select id="support-category-select" aria-label="Category">
+          <option value="monk_cd">治疗CD</option>
+          <option value="personal_defensive">Personal defensive</option>
+          <option value="raid_defensive">Raid defensive</option>
+          <option value="consumable">Item / Potion</option>
+        </select>
+        <input id="support-skill-name" type="text" placeholder="Display name">
+        <input id="support-skill-id" type="number" min="1" placeholder="Spell ID">
+        <select id="support-skill-source" aria-label="Item source">
+          <option value="healing">healing</option>
+          <option value="buff">buff</option>
+          <option value="damage">damage</option>
+        </select>
+        <button id="add-support-skill-button" type="button">Add entry</button>
+      </div>
+      <div id="support-spell-preview" class="spell-preview"></div>
+      <div id="support-editor-state" class="config-editor-state">治疗CD和减伤只需要显示名 + Spell ID。饰品/药水还需要 source。</div>
+    </div>
+    <div id="config-summary" class="config-summary">Loading config...</div>
+    <div id="config-content" class="config-grid"></div>
+  </div>
+
+  <div id="status" class="status">Checking app status...</div>
+  <div id="main-container"></div>
+
+  <div id="copy-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="copy-modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <div id="copy-modal-title" class="modal-title">Copy MRT</div>
+        <button id="copy-modal-close" class="modal-close" type="button" aria-label="Close">x</button>
+      </div>
+      <div class="modal-body">
+        <div id="copy-modal-note" class="modal-note">Copied to clipboard. You can paste this into MRT.</div>
+        <textarea id="mrt-preview" class="mrt-preview" readonly></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const APP_VERSION = "v0.4-preview";
+    const LANGUAGE_STORAGE_KEY = "wclTimelineLanguage";
+    let currentLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY) || "en";
+    const I18N = {
+      en: {
+        tokenChecking: "Token checking",
+        configChecking: "Config checking",
+        tokenSaved: "Token saved",
+        tokenMissing: "Token missing",
+        tokenUnknown: "Token unknown",
+        configLoaded: "Config loaded",
+        configError: "Config error",
+        configUnknown: "Config unknown",
+        versionChecking: "Version checking...",
+        about: "About",
+        back: "Back",
+        config: "Config",
+        settings: "Settings",
+        hideSettings: "Hide settings",
+        close: "Close",
+        app: "App",
+        localFiles: "Local files",
+        status: "Status",
+        firstAid: "First aid",
+        purpose: "Purpose: build healer-friendly WCL timelines.",
+        tokenFirstAid: "Token error: open Settings and save a fresh WCL API token.",
+        configFirstAid: "Config error: open Config and restore backup or import config.yaml.",
+        language: "Language",
+        settingsText: "Paste your Warcraft Logs API token here. The app saves it locally and never shows the token value after saving.",
+        tokenPlaceholder: "Paste WCL API token",
+        saveToken: "Save token",
+        tokenFileChecking: "Token file: checking...",
+        configFileChecking: "Config file: checking...",
+        quickStart: "Quick start",
+        quick1: "1. Save WCL token in Settings",
+        quick2: "2. Paste a report URL",
+        quick3: "3. Load fights and choose one pull",
+        quick4: "4. Build timeline",
+        quick5: "5. Use Config to maintain tracked skills",
+        reportPlaceholder: "Paste Warcraft Logs report URL",
+        loadFights: "Load fights",
+        loadFightsFirst: "Load fights first",
+        buildTimeline: "Build timeline",
+        reportHelp: "Paste a report link, load fights, then choose the pull you want to inspect.",
+        display: "Display",
+        all: "All",
+        none: "None",
+        copyMrt: "Copy MRT",
+        downloadMrt: "Download MRT",
+        view: "View",
+        timeline: "Timeline",
+        coverage: "Coverage",
+        timelineMode: "Timeline mode",
+        overview: "Overview",
+        detail: "Detail",
+        timeScale: "Time scale",
+        healthLayer: "Health lines",
+        damageLayer: "Damage taken",
+        healingLayer: "Healing",
+        reverseLayer: "Reverse",
+        noTimelineLoaded: "No timeline loaded.",
+        bossSkills: "Boss skills",
+        healingCds: "Healing CDs",
+        defensives: "Defensives",
+        itemsPotions: "Items/Potions",
+        coverageCheck: "Coverage check",
+        coverageText1: "Count support skills from",
+        coverageText2: "sec before to",
+        coverageText3: "sec after each boss event",
+        configViewer: "Config viewer",
+        refresh: "Refresh",
+        configFile: "Config file",
+        exportConfig: "Export config",
+        importConfig: "Import config",
+        restoreBackup: "Restore backup",
+        repairConfig: "Sync fallback",
+        configFileHelp: "Export your config before sharing or importing another one.",
+        addBossSkill: "Add Boss Skill",
+        skillName: "Skill name",
+        spellId: "Spell ID",
+        addSkill: "Add skill",
+        bossSkillHelp: "Choose a dungeon and boss, then add one tracked boss skill.",
+        damageDisplayTarget: "target",
+        damageDisplayInterval: "interval",
+        damageDisplayAura: "aura",
+        damageDisplayHelp: "target = repeated named targets, interval = periodic damage, aura = continuous field aura.",
+        addSupportItem: "Add Support / Item",
+        personalDefensive: "Personal defensive",
+        raidDefensive: "Raid defensive",
+        itemPotion: "Item / Potion",
+        displayName: "Display name",
+        addEntry: "Add entry",
+        supportHelp: "Healing CDs and defensives only need display name + Spell ID. Items/Potions also need source.",
+        supportHelpConsumable: "Items/Potions need display name + Spell ID + source. Use damage for effects that show as damage events.",
+        supportHelpBasic: "Healing CDs and defensives only require Spell ID. Display name is optional.",
+        copiedMrt: "Copied to clipboard. You can paste this into MRT.",
+        copyBlocked: "Clipboard copy may have been blocked. Select the text below and copy it manually.",
+        bossSegments: "Boss segments",
+        noEventEmpty: "No events under current filters.\nPossible reasons: Boss/skill filters are off, this pull did not contain that skill, or Spell IDs in config.yaml do not match.\nTry: click All first; if still empty, check skill IDs in Config viewer.",
+        noHealthData: "No health resource data in this report.",
+        noDamageLayerData: "No WCL damage data in this boss segment.",
+        noHealingLayerData: "No WCL healing data in this boss segment.",
+        timelineReadyTitle: "Timeline ready",
+        timelineReady1: "View switches between Timeline and Coverage",
+        timelineReady2: "Timeline mode switches Overview and Detail",
+        timelineReady3: "Mouse wheel zooms; drag horizontally to pan",
+        timelineReady4: "Config can be clicked again to return",
+        aboutGuide1: "Use this page when sharing screenshots for troubleshooting",
+        aboutGuide2: "Version, token path, and config path are shown here",
+        aboutGuide3: "Close About to return",
+        configGuide1: "Add, delete, import, export, or restore tracked skills here",
+        configGuide2: "Click Back or Config again to return",
+        configGuide3: "Every config write keeps config.yaml.bak"
+      },
+      zh: {
+        tokenChecking: "Token 检查中",
+        configChecking: "配置检查中",
+        tokenSaved: "Token 已保存",
+        tokenMissing: "Token 缺失",
+        tokenUnknown: "Token 状态未知",
+        configLoaded: "配置已加载",
+        configError: "配置错误",
+        configUnknown: "配置状态未知",
+        versionChecking: "版本检查中...",
+        about: "关于",
+        back: "返回",
+        config: "配置",
+        settings: "设置",
+        hideSettings: "隐藏设置",
+        close: "关闭",
+        app: "程序",
+        localFiles: "本地文件",
+        status: "状态",
+        firstAid: "快速排查",
+        purpose: "用途：根据 WCL 日志生成治疗视角时间轴。",
+        tokenFirstAid: "Token 报错：打开设置并保存新的 WCL API Token。",
+        configFirstAid: "配置报错：打开配置，恢复备份或导入 config.yaml。",
+        language: "语言",
+        settingsText: "在这里填写 Warcraft Logs API Token。程序会保存在本地，保存后不会再显示 Token 原文。",
+        tokenPlaceholder: "粘贴 WCL API Token",
+        saveToken: "保存 Token",
+        tokenFileChecking: "Token 文件：检查中...",
+        configFileChecking: "配置文件：检查中...",
+        quickStart: "快速开始",
+        quick1: "1. 在设置中保存 WCL Token",
+        quick2: "2. 粘贴日志链接",
+        quick3: "3. 读取战斗列表并选择一场",
+        quick4: "4. 生成时间轴",
+        quick5: "5. 用配置面板维护监测技能",
+        reportPlaceholder: "粘贴 Warcraft Logs 日志链接",
+        loadFights: "读取战斗",
+        loadFightsFirst: "请先读取战斗",
+        buildTimeline: "生成时间轴",
+        reportHelp: "粘贴日志链接，读取战斗列表，然后选择你要查看的战斗。",
+        display: "显示",
+        all: "全选",
+        none: "全不选",
+        copyMrt: "复制 MRT",
+        downloadMrt: "下载 MRT",
+        view: "视图",
+        timeline: "时间轴",
+        coverage: "覆盖检查",
+        timelineMode: "时间轴模式",
+        overview: "总览",
+        detail: "详细",
+        timeScale: "时间缩放",
+        healthLayer: "血线",
+        damageLayer: "承伤",
+        healingLayer: "治疗",
+        reverseLayer: "反转",
+        noTimelineLoaded: "尚未生成时间轴。",
+        bossSkills: "Boss 技能",
+        healingCds: "治疗CD",
+        defensives: "减伤",
+        itemsPotions: "饰品/药水",
+        coverageCheck: "覆盖检查",
+        coverageText1: "统计支援技能：Boss 技能前",
+        coverageText2: "秒到后",
+        coverageText3: "秒",
+        configViewer: "配置查看器",
+        refresh: "刷新",
+        configFile: "配置文件",
+        exportConfig: "导出配置",
+        importConfig: "导入配置",
+        restoreBackup: "恢复备份",
+        repairConfig: "同步兜底",
+        configFileHelp: "分享或导入配置前，建议先导出当前配置。",
+        addBossSkill: "添加 Boss 技能",
+        skillName: "技能名",
+        spellId: "技能 ID",
+        addSkill: "添加技能",
+        bossSkillHelp: "选择副本和 Boss，然后添加一个需要监测的 Boss 技能。",
+        damageDisplayTarget: "点名",
+        damageDisplayInterval: "间隔",
+        damageDisplayAura: "光环",
+        damageDisplayHelp: "点名：换目标重新显示；间隔：按时间间隔显示；光环：连续场地伤害只显示开始点。",
+        addSupportItem: "添加治疗CD / 减伤 / 物品",
+        personalDefensive: "个人减伤",
+        raidDefensive: "团队减伤",
+        itemPotion: "饰品 / 药水",
+        displayName: "显示名",
+        addEntry: "添加条目",
+        supportHelp: "治疗CD和减伤只需要显示名 + 技能 ID。饰品/药水还需要 source。",
+        supportHelpConsumable: "饰品/药水需要显示名 + 技能 ID + source。伤害触发类请选择 damage。",
+        supportHelpBasic: "治疗CD和减伤只必须填写技能 ID，显示名可选。",
+        copiedMrt: "已复制到剪贴板，可以直接粘贴进 MRT。",
+        copyBlocked: "剪贴板可能被浏览器拦截，请手动选择下方文本复制。",
+        bossSegments: "Boss 分段",
+        noEventEmpty: "当前筛选下没有可显示事件。\n可能原因：Boss/技能筛选被关闭、这次战斗没有发生对应技能、或 config.yaml 里的技能 ID 不匹配。\n建议：先点击全选恢复筛选；如果仍为空，再检查配置查看器里的技能 ID。",
+        noHealthData: "这份日志没有可用血量资源数据。",
+        noDamageLayerData: "该 Boss 分段没有 WCL 承伤热度数据。",
+        noHealingLayerData: "该 Boss 分段没有 WCL 治疗热度数据。",
+        timelineReadyTitle: "时间轴已生成",
+        timelineReady1: "视图用于切换时间轴和覆盖检查",
+        timelineReady2: "时间轴模式用于切换总览和详细",
+        timelineReady3: "滚轮缩放，横向拖动查看",
+        timelineReady4: "再次点击配置可返回",
+        aboutGuide1: "排查问题时可以截图这一页",
+        aboutGuide2: "这里会显示版本、Token 路径和配置路径",
+        aboutGuide3: "关闭关于即可返回",
+        configGuide1: "在这里添加、删除、导入、导出或恢复监测技能",
+        configGuide2: "点击返回或再次点击配置可回到主界面",
+        configGuide3: "每次写入配置都会保留 config.yaml.bak"
+      }
+    };
+
+    if (!I18N[currentLanguage]) currentLanguage = "en";
+
+    function t(key) {
+      return I18N[currentLanguage]?.[key] || I18N.en[key] || key;
+    }
+
+    const BASE_TIME = new Date(2000, 0, 1, 0, 0, 0);
+    const KIND_LABEL_KEYS = {
+      BOSS: "bossSkills",
+      MONK: "healingCds",
+      DEF: "defensives",
+      ITEM: "itemsPotions"
+    };
+    const KIND_ORDER = ["BOSS", "MONK", "DEF", "ITEM"];
+    const CLASS_ABBR = {
+      DeathKnight: "DK",
+      DemonHunter: "DH",
+      Druid: "DR",
+      Evoker: "EV",
+      Hunter: "HU",
+      Mage: "MA",
+      Monk: "MO",
+      Paladin: "PA",
+      Priest: "PR",
+      Rogue: "RO",
+      Shaman: "SH",
+      Warlock: "WL",
+      Warrior: "WA",
+      Player: "P"
+    };
+
+    const setupPanel = document.getElementById("setup-panel");
+    const languageSelect = document.getElementById("language-select");
+    const languageLabel = document.getElementById("language-label");
+    const aboutPanel = document.getElementById("about-panel");
+    const aboutButton = document.getElementById("about-button");
+    const closeAboutButton = document.getElementById("close-about-button");
+    const versionLabel = document.getElementById("version-label");
+    const aboutVersion = document.getElementById("about-version");
+    const aboutTokenFile = document.getElementById("about-token-file");
+    const aboutConfigFile = document.getElementById("about-config-file");
+    const aboutTokenState = document.getElementById("about-token-state");
+    const aboutConfigState = document.getElementById("about-config-state");
+    const settingsButton = document.getElementById("settings-button");
+    const configButton = document.getElementById("config-button");
+    const refreshConfigButton = document.getElementById("refresh-config-button");
+    const closeConfigButton = document.getElementById("close-config-button");
+    const configPanel = document.getElementById("config-panel");
+    const configSummary = document.getElementById("config-summary");
+    const configContent = document.getElementById("config-content");
+    const exportConfigButton = document.getElementById("export-config-button");
+    const importConfigButton = document.getElementById("import-config-button");
+    const restoreConfigButton = document.getElementById("restore-config-button");
+    const repairConfigButton = document.getElementById("repair-config-button");
+    const importConfigFile = document.getElementById("import-config-file");
+    const configFileToolState = document.getElementById("config-file-tool-state");
+    const configDungeonSelect = document.getElementById("config-dungeon-select");
+    const configBossSelect = document.getElementById("config-boss-select");
+    const configSkillNameInput = document.getElementById("config-skill-name");
+    const configSkillIdInput = document.getElementById("config-skill-id");
+    const configSkillSourceSelect = document.getElementById("config-skill-source");
+    const configDamageDisplaySelect = document.getElementById("config-damage-display");
+    const addBossSkillButton = document.getElementById("add-boss-skill-button");
+    const configEditorState = document.getElementById("config-editor-state");
+    const configSpellPreview = document.getElementById("config-spell-preview");
+    const supportCategorySelect = document.getElementById("support-category-select");
+    const supportSkillNameInput = document.getElementById("support-skill-name");
+    const supportSkillIdInput = document.getElementById("support-skill-id");
+    const supportSkillSourceSelect = document.getElementById("support-skill-source");
+    const addSupportSkillButton = document.getElementById("add-support-skill-button");
+    const supportEditorState = document.getElementById("support-editor-state");
+    const supportSpellPreview = document.getElementById("support-spell-preview");
+    const tokenBadge = document.getElementById("token-badge");
+    const configBadge = document.getElementById("config-badge");
+    const tokenInput = document.getElementById("token-input");
+    const saveTokenButton = document.getElementById("save-token-button");
+    const tokenState = document.getElementById("token-state");
+    const tokenFileState = document.getElementById("token-file-state");
+    const configFileState = document.getElementById("config-file-state");
+    const logUrlInput = document.getElementById("log-url");
+    const fetchFightsButton = document.getElementById("fetch-fights-button");
+    const fightSelect = document.getElementById("fight-select");
+    const loadButton = document.getElementById("load-button");
+    const guidePanel = document.getElementById("guide-panel");
+    const filterPanel = document.getElementById("filter-panel");
+    const bossFilter = document.getElementById("boss-filter");
+    const filterGrid = document.getElementById("filter-grid");
+    const selectAllButton = document.getElementById("select-all-button");
+    const clearAllButton = document.getElementById("clear-all-button");
+    const copyAxisButton = document.getElementById("copy-axis-button");
+    const downloadAxisButton = document.getElementById("download-axis-button");
+    const timelineViewButton = document.getElementById("timeline-view-button");
+    const coverageViewButton = document.getElementById("coverage-view-button");
+    const overviewDensityButton = document.getElementById("overview-density-button");
+    const detailDensityButton = document.getElementById("detail-density-button");
+    const timelineModeRow = document.getElementById("timeline-mode-row");
+    const timelineControls = document.getElementById("timeline-controls");
+    const detailLayerControls = document.getElementById("detail-layer-controls");
+    const timelineSummary = document.getElementById("timeline-summary");
+    const zoomOutButton = document.getElementById("zoom-out-button");
+    const zoomInButton = document.getElementById("zoom-in-button");
+    const timelineZoomInput = document.getElementById("timeline-zoom");
+    const zoomLabel = document.getElementById("zoom-label");
+    const showHealthLayerInput = document.getElementById("show-health-layer");
+    const invertHealthInput = document.getElementById("invert-health");
+    const showDamageLayerInput = document.getElementById("show-damage-layer");
+    const invertDamageLayerInput = document.getElementById("invert-damage-layer");
+    const showHealingLayerInput = document.getElementById("show-healing-layer");
+    const invertHealingLayerInput = document.getElementById("invert-healing-layer");
+    const coveragePanel = document.getElementById("coverage-panel");
+    const coverageList = document.getElementById("coverage-list");
+    const coverageBeforeInput = document.getElementById("coverage-before");
+    const coverageAfterInput = document.getElementById("coverage-after");
+    const statusEl = document.getElementById("status");
+    const mainContainer = document.getElementById("main-container");
+    const copyModal = document.getElementById("copy-modal");
+    const copyModalClose = document.getElementById("copy-modal-close");
+    const copyModalNote = document.getElementById("copy-modal-note");
+    const mrtPreview = document.getElementById("mrt-preview");
+
+    let currentData = null;
+    let activeView = "timeline";
+    let displayDensity = "overview";
+    let settingsPinnedOpen = false;
+    let timelineZoom = 1;
+    let bossTimelineZooms = {};
+    let pendingTimelineFocus = null;
+    let invertHealth = false;
+    let showHealthLayer = true;
+    let showDamageLayer = false;
+    let showHealingLayer = false;
+    let invertDamageLayer = false;
+    let invertHealingLayer = false;
+    let configData = null;
+    let appStatusData = null;
+
+    function kindLabel(kind) {
+      return t(KIND_LABEL_KEYS[kind]);
+    }
+
+    function abilityNameFromWcl(spellId) {
+      if (!spellId || !currentData?.abilityNames) return "";
+      return currentData.abilityNames[String(spellId)] || "";
+    }
+
+    function abilityIconFromWcl(spellId) {
+      if (!spellId || !currentData?.abilityIcons) return "";
+      return currentData.abilityIcons[String(spellId)] || "";
+    }
+
+    function displaySkillName(skill) {
+      if (currentLanguage === "en") {
+        return skill.name_en || abilityNameFromWcl(skill.id) || skill.name || `#${skill.id || "?"}`;
+      }
+      return skill.name_zh || skill.name || abilityNameFromWcl(skill.id) || `#${skill.id || "?"}`;
+    }
+
+    function displayMapEntryName(id, entry) {
+      if (entry && typeof entry === "object") {
+        if (currentLanguage === "en") return entry.name_en || abilityNameFromWcl(id) || entry.name || entry.name_zh || `#${id}`;
+        return entry.name_zh || entry.name || abilityNameFromWcl(id) || entry.name_en || `#${id}`;
+      }
+      if (currentLanguage === "en") return abilityNameFromWcl(id) || entry || `#${id}`;
+      return entry || abilityNameFromWcl(id) || `#${id}`;
+    }
+
+    function displayConfigDungeonName(dungeon) {
+      if (currentLanguage === "en") {
+        return dungeon?.name_en || dungeon?.name || (currentLanguage === "zh" ? "未命名副本" : "Unnamed dungeon");
+      }
+      return dungeon?.name_zh || dungeon?.name || dungeon?.name_en || "未命名副本";
+    }
+
+    function displayConfigBossName(boss) {
+      if (currentLanguage === "en") {
+        if (boss?.name_en) return boss.name_en;
+        if (boss?.encounterID && currentData?.bosses) {
+        const match = currentData.bosses.find(item => String(item.encounterID) === String(boss.encounterID));
+        if (match?.name) return match.name;
+        }
+        return boss?.name || "Unnamed boss";
+      }
+      return boss?.name_zh || boss?.name || boss?.name_en || "未命名 Boss";
+    }
+
+    function displayEventName(event) {
+      if (event.kind === "DEATH") {
+        return currentLanguage === "zh" ? "死亡" : "Death";
+      }
+      if (currentLanguage === "en") {
+        return event.abilityName || abilityNameFromWcl(event.spellId) || event.name || "?";
+      }
+      return event.name || event.abilityName || "?";
+    }
+
+    function setText(selector, text) {
+      const element = typeof selector === "string" ? document.querySelector(selector) : selector;
+      if (element) element.innerText = text;
+    }
+
+    function applyLanguage() {
+      document.documentElement.lang = currentLanguage === "zh" ? "zh-CN" : "en";
+      languageSelect.value = currentLanguage;
+      if (appStatusData) {
+        setBadge(tokenBadge, appStatusData.tokenLoaded ? "ok" : "bad", appStatusData.tokenLoaded ? t("tokenSaved") : t("tokenMissing"));
+        setBadge(configBadge, appStatusData.configLoaded ? "ok" : "bad", appStatusData.configLoaded ? t("configLoaded") : t("configError"));
+      } else {
+        setText(tokenBadge, t("tokenChecking"));
+        setText(configBadge, t("configChecking"));
+        setStatus(currentLanguage === "zh" ? "正在检查程序状态..." : "Checking app status...");
+      }
+      setText(aboutButton, t("about"));
+      setText(configButton, configPanel.style.display === "block" ? t("back") : t("config"));
+      setText(settingsButton, setupPanel.style.display === "block" ? t("hideSettings") : t("settings"));
+      setText(closeAboutButton, t("close"));
+      setText(languageLabel, t("language"));
+      setText(".setup-title", t("settings"));
+      setText(".setup-text", t("settingsText"));
+      tokenInput.placeholder = t("tokenPlaceholder");
+      setText(saveTokenButton, t("saveToken"));
+      setGuide();
+      logUrlInput.placeholder = t("reportPlaceholder");
+      setText(fetchFightsButton, t("loadFights"));
+      if (fightSelect.disabled) resetFightSelect(t("loadFightsFirst"));
+      setText(loadButton, t("buildTimeline"));
+      setText(".help", t("reportHelp"));
+      setText("#filter-panel .toolbar-title", t("display"));
+      setText(selectAllButton, t("all"));
+      setText(clearAllButton, t("none"));
+      setText(copyAxisButton, t("copyMrt"));
+      setText(downloadAxisButton, t("downloadMrt"));
+      setText("#view-mode-row .mode-label", t("view"));
+      setText(timelineViewButton, t("timeline"));
+      setText(coverageViewButton, t("coverage"));
+      setText("#timeline-mode-row .mode-label", t("timelineMode"));
+      setText(overviewDensityButton, t("overview"));
+      setText(detailDensityButton, t("detail"));
+      setText("#timeline-controls > span:first-child", t("timeScale"));
+      setText("#health-layer-label", t("healthLayer"));
+      setText("#invert-health-label", t("reverseLayer"));
+      setText("#damage-layer-label", t("damageLayer"));
+      setText("#invert-damage-layer-label", t("reverseLayer"));
+      setText("#healing-layer-label", t("healingLayer"));
+      setText("#invert-healing-layer-label", t("reverseLayer"));
+      if (!currentData) timelineSummary.innerText = t("noTimelineLoaded");
+      document.querySelector(".legend-boss").lastChild.textContent = t("bossSkills");
+      document.querySelector(".legend-monk").lastChild.textContent = t("healingCds");
+      document.querySelector(".legend-def").lastChild.textContent = t("defensives");
+      document.querySelector(".legend-item-kind").lastChild.textContent = t("itemsPotions");
+      setText(".coverage-title", t("coverageCheck"));
+      const coverageSpans = document.querySelectorAll(".coverage-controls span");
+      if (coverageSpans[0]) coverageSpans[0].innerText = t("coverageText1");
+      if (coverageSpans[1]) coverageSpans[1].innerText = t("coverageText2");
+      if (coverageSpans[2]) coverageSpans[2].innerText = t("coverageText3");
+      setText("#config-panel > .toolbar .toolbar-title", t("configViewer"));
+      setText(refreshConfigButton, t("refresh"));
+      setText(closeConfigButton, t("close"));
+      setText(".config-file-tools .toolbar-title", t("configFile"));
+      setText(exportConfigButton, t("exportConfig"));
+      setText(importConfigButton, t("importConfig"));
+      setText(restoreConfigButton, t("restoreBackup"));
+      setText(repairConfigButton, t("repairConfig"));
+      setConfigFileToolState(t("configFileHelp"));
+      setText("#add-boss-title", t("addBossSkill"));
+      configSkillNameInput.placeholder = t("skillName");
+      configSkillIdInput.placeholder = t("spellId");
+      configDamageDisplaySelect.options[0].textContent = t("damageDisplayTarget");
+      configDamageDisplaySelect.options[1].textContent = t("damageDisplayInterval");
+      configDamageDisplaySelect.options[2].textContent = t("damageDisplayAura");
+      updateConfigDamageDisplayState();
+      setText(addBossSkillButton, t("addSkill"));
+      setConfigEditorState(t("bossSkillHelp"));
+      setText("#add-support-title", t("addSupportItem"));
+      supportCategorySelect.options[0].text = t("healingCds");
+      supportCategorySelect.options[1].text = t("personalDefensive");
+      supportCategorySelect.options[2].text = t("raidDefensive");
+      supportCategorySelect.options[3].text = t("itemPotion");
+      supportSkillNameInput.placeholder = t("displayName");
+      supportSkillIdInput.placeholder = t("spellId");
+      setText(addSupportSkillButton, t("addEntry"));
+      updateSupportSourceState();
+      setText("#copy-modal-title", t("copyMrt"));
+      copyModalNote.innerText = t("copiedMrt");
+      updateSpellPreviews();
+      setText("#about-panel .toolbar-title", t("about"));
+      const aboutCards = aboutPanel.querySelectorAll(".about-card");
+      if (aboutCards[0]) {
+        aboutCards[0].querySelector("strong").innerText = t("app");
+        aboutCards[0].querySelectorAll("div")[1].innerText = t("purpose");
+      }
+      if (aboutCards[1]) aboutCards[1].querySelector("strong").innerText = t("localFiles");
+      if (aboutCards[2]) aboutCards[2].querySelector("strong").innerText = t("status");
+      if (aboutCards[3]) {
+        aboutCards[3].querySelector("strong").innerText = t("firstAid");
+        aboutCards[3].querySelectorAll("div")[0].innerText = t("tokenFirstAid");
+        aboutCards[3].querySelectorAll("div")[1].innerText = t("configFirstAid");
+      }
+      updateAboutStatus();
+      if (configData) {
+        renderConfigView(configData);
+        populateConfigEditor(configData);
+      }
+      if (currentData) {
+        buildFilters(currentData);
+        updateTimelineSummary(getFilteredData());
+      }
+    }
+
+    function setStatus(message) {
+      statusEl.innerText = message;
+    }
+
+    function setGuide() {
+      guidePanel.querySelector(".guide-title").innerText = t("quickStart");
+      guidePanel.querySelector(".guide-steps").innerHTML = [t("quick1"), t("quick2"), t("quick3"), t("quick4"), t("quick5")]
+        .map(step => `<span class="guide-step">${escapeHtml(step)}</span>`)
+        .join("");
+    }
+
+    function setConfigButtonActive(active) {
+      configButton.classList.toggle("active", active);
+      configButton.innerText = active ? t("back") : t("config");
+    }
+
+    function syncDisplayModeControls() {
+      const showTimelineOptions = activeView === "timeline";
+      timelineModeRow.style.display = showTimelineOptions ? "flex" : "none";
+      timelineControls.style.display = showTimelineOptions ? "flex" : "none";
+      detailLayerControls.style.display = showTimelineOptions && displayDensity === "detail" ? "flex" : "none";
+      timelineSummary.style.display = currentData ? "block" : "none";
+    }
+
+    function updateAboutStatus(data = null) {
+      const statusData = data || appStatusData || {};
+      const version = statusData.version || APP_VERSION;
+      versionLabel.innerText = version;
+      aboutVersion.innerText = currentLanguage === "zh" ? `版本：${version}` : `Version: ${version}`;
+      aboutTokenFile.innerText = currentLanguage === "zh" ? `Token 文件：${statusData.tokenFile || "token.txt"}` : `Token file: ${statusData.tokenFile || "token.txt"}`;
+      aboutConfigFile.innerText = currentLanguage === "zh" ? `配置文件：${statusData.configFile || "config.yaml"}` : `Config file: ${statusData.configFile || "config.yaml"}`;
+      aboutTokenState.innerText = currentLanguage === "zh"
+        ? `Token：${statusData.tokenLoaded ? "已保存" : "缺失或无效"}`
+        : `Token: ${statusData.tokenLoaded ? "saved" : "missing or invalid"}`;
+      aboutConfigState.innerText = currentLanguage === "zh"
+        ? `配置：${statusData.configLoaded ? "已加载" : "缺失或无效"}`
+        : `Config: ${statusData.configLoaded ? "loaded" : "missing or invalid"}`;
+    }
+
+    function setAboutVisible(visible) {
+      aboutPanel.style.display = visible ? "block" : "none";
+      aboutButton.classList.toggle("active", visible);
+      if (visible) {
+        configPanel.style.display = "none";
+        setConfigButtonActive(false);
+        mainContainer.style.display = currentData ? "none" : "block";
+        coveragePanel.style.display = "none";
+        setGuide(t("about"), [t("aboutGuide1"), t("aboutGuide2"), t("aboutGuide3")]);
+      } else if (currentData) {
+        applyFilters();
+      } else {
+        setGuide(t("quickStart"), [t("quick1"), t("quick2"), t("quick3"), t("quick4"), t("quick5")]);
+      }
+    }
+
+    function setTokenState(message) {
+      tokenState.innerText = message;
+    }
+
+    function setBadge(element, state, text) {
+      element.classList.remove("ok", "bad", "warn");
+      element.classList.add(state);
+      element.innerText = text;
+    }
+
+    function setSettingsVisible(visible) {
+      setupPanel.style.display = visible ? "block" : "none";
+      settingsButton.innerText = visible ? t("hideSettings") : t("settings");
+    }
+
+    function friendlyError(message) {
+      const text = String(message || "");
+      const lower = text.toLowerCase();
+      const explain = (problem, advice) => currentLanguage === "zh"
+        ? `问题：${problem}\n建议：${advice}`
+        : `Problem: ${problem}\nTry: ${advice}`;
+      if (currentLanguage === "en") {
+        if (lower.includes("report url") || lower.includes("report link")) {
+          return explain("The report link is invalid.", "Paste a full Warcraft Logs report URL, such as https://cn.warcraftlogs.com/reports/xxxx.");
+        }
+        if (lower.includes("fight id") || lower.includes("choose one pull")) {
+          return explain("No fight is selected yet.", "Click Load fights, choose one pull, then build the timeline.");
+        }
+        if (lower.includes("token looks like a report url")) {
+          return explain("The Token field contains a report URL.", "Paste the WCL API token in Settings, and paste the report link in the report URL field.");
+        }
+        if (lower.includes("token is empty") || lower.includes("token not saved") || lower.includes("token missing")) {
+          return explain("No WCL API token has been saved.", "Open Settings, paste the token, then click Save token.");
+        }
+        if (lower.includes("token should be one continuous")) {
+          return explain("The token contains spaces or line breaks.", "Copy the full token again as one continuous string.");
+        }
+        if (lower.includes("token looks too short")) {
+          return explain("The token looks too short.", "Copy the full token from the Warcraft Logs API page.");
+        }
+        if ((lower.includes("invalid") && lower.includes("token")) || lower.includes("unauth")) {
+          return explain("The token is invalid, expired, or lacks permission.", "Generate/save a fresh WCL API token. For private logs, make sure the account can view the report.");
+        }
+        if (lower.includes("permission") || lower.includes("private") || lower.includes("forbidden")) {
+          return explain("The report cannot be read.", "The report may be private, or the token lacks permission. Use an authorized token or a public report.");
+        }
+        if (lower.includes("timed out")) {
+          return explain("The Warcraft Logs request timed out.", "Check your network or proxy, then try again.");
+        }
+        if (lower.includes("could not connect") || lower.includes("failed to fetch") || lower.includes("networkerror")) {
+          return explain("The app or Warcraft Logs could not be reached.", "Make sure the local app is still running. If WCL is blocked, check your proxy/node.");
+        }
+        if (lower.includes("http 404") || lower.includes("not found")) {
+          return explain("The report or file was not found.", "Check that the report link is complete. For config errors, make sure config.yaml is in the app folder.");
+        }
+        if (lower.includes("no fights found")) {
+          return explain("No fights were found in this report.", "Make sure this is a report page, not a ranking or event page. You can also test another report.");
+        }
+        if (lower.includes("invalid timeline data")) {
+          return explain("The backend returned incomplete timeline data.", "Load fights again and rebuild. If it keeps happening, keep this report link for debugging.");
+        }
+        if (lower.includes("imported config is empty")) {
+          return explain("The imported config file is empty.", "Choose a valid config.yaml file.");
+        }
+        if (lower.includes("not valid yaml")) {
+          return explain("The imported file is not valid YAML.", "Check indentation, spaces after colons, and whether the selected file is correct.");
+        }
+        if (lower.includes("missing required sections")) {
+          return explain("The config file is missing required sections.", "Import a complete config.yaml with boss_skills, monk_cds, defensives, consumables, and dungeons.");
+        }
+        if (lower.includes("already exists in config")) {
+          return explain("This Spell ID already exists in config.", "Delete the old entry in Config viewer first, then add it again.");
+        }
+        if (lower.includes("spell id must be a number")) {
+          return explain("Spell ID is not a number.", "Enter the numeric spell ID from WCL/the game.");
+        }
+        if (lower.includes("config.yaml.bak was not found")) {
+          return explain("No backup is available yet.", "Add, delete, or import config once to create config.yaml.bak.");
+        }
+        if (lower.includes("config.yaml") || lower.includes("config")) {
+          return explain("The config file is missing or invalid.", "Make sure config.yaml exists in the app folder. If you just imported config, try Restore backup.");
+        }
+        return explain("The action did not finish.", text || "Try again. If it repeats, keep the report link and steps for debugging.");
+      }
+      if (lower.includes("report url") || lower.includes("report link") || lower.includes("日志地址")) {
+        return explain("日志链接格式不正确。", "请粘贴完整的 Warcraft Logs 报告链接，例如 https://cn.warcraftlogs.com/reports/xxxx。");
+      }
+      if (lower.includes("fight id") || lower.includes("choose one pull") || lower.includes("请选择一场战斗")) {
+        return explain("还没有选择具体战斗。", "先点击 Load fights，然后在下拉框里选择一场战斗再生成时间轴。");
+      }
+      if (lower.includes("token looks like a report url")) {
+        return explain("Token 栏里填成了日志链接。", "Settings 里只填 WCL API Token，日志链接填到下方 report URL。");
+      }
+      if (lower.includes("token is empty") || lower.includes("token not saved") || lower.includes("token missing")) {
+        return explain("还没有保存 WCL API Token。", "打开 Settings，粘贴 Token 后点击 Save token。");
+      }
+      if (lower.includes("token should be one continuous")) {
+        return explain("Token 里有空格或换行。", "重新复制完整 Token，确保它是一整段连续字符。");
+      }
+      if (lower.includes("token looks too short")) {
+        return explain("Token 看起来太短。", "请从 Warcraft Logs API 页面复制完整 Token。");
+      }
+      if ((lower.includes("invalid") && lower.includes("token")) || lower.includes("unauth")) {
+        return explain("Token 无效、过期，或权限不足。", "重新生成/保存 WCL API Token；如果日志是私密的，确认这个账号有权限查看。");
+      }
+      if (lower.includes("permission") || lower.includes("private") || lower.includes("forbidden")) {
+        return explain("无法读取该日志。", "这通常是私密日志或 Token 权限不足，请换有权限的 Token 或公开日志。");
+      }
+      if (lower.includes("timed out")) {
+        return explain("连接 Warcraft Logs 超时。", "检查网络或代理后重试；如果 WCL 很慢，稍等一会再点一次。");
+      }
+      if (lower.includes("could not connect") || lower.includes("failed to fetch") || lower.includes("networkerror")) {
+        return explain("无法连接到后端或 Warcraft Logs。", "确认本程序窗口没有关闭；如果是 WCL 网络问题，请检查代理/节点。");
+      }
+      if (lower.includes("http 404") || lower.includes("not found")) {
+        return explain("找不到这份日志或文件。", "检查报告链接是否复制完整；如果是配置文件问题，确认 config.yaml 在程序目录。");
+      }
+      if (lower.includes("no fights found")) {
+        return explain("这份报告里没有可读取的战斗列表。", "确认链接是 report 页面，不是排行榜或单个事件页面；也可以换一份日志测试。");
+      }
+      if (lower.includes("invalid timeline data")) {
+        return explain("后端返回的时间轴数据不完整。", "请重新读取战斗列表后再生成；如果重复出现，把这份日志链接留作排查样本。");
+      }
+      if (lower.includes("imported config is empty")) {
+        return explain("导入的配置文件是空的。", "请选择有效的 config.yaml 文件。");
+      }
+      if (lower.includes("not valid yaml")) {
+        return explain("导入的配置不是合法 YAML。", "检查缩进、冒号后的空格，以及是否误选了其他文件。");
+      }
+      if (lower.includes("missing required sections")) {
+        return explain("配置文件缺少必要区块。", "请导入完整 config.yaml，至少包含 boss_skills、monk_cds、defensives、consumables、dungeons。");
+      }
+      if (lower.includes("already exists in config")) {
+        return explain("这个 Spell ID 已经在配置里。", "如果是填错了，先在 Config viewer 里删除旧条目，再重新添加。");
+      }
+      if (lower.includes("spell id must be a number")) {
+        return explain("Spell ID 不是数字。", "请填写 WCL/游戏里的纯数字技能 ID。");
+      }
+      if (lower.includes("config.yaml.bak was not found")) {
+        return explain("还没有可恢复的备份。", "先进行一次添加、删除或导入操作后，程序才会生成 config.yaml.bak。");
+      }
+      if (lower.includes("config.yaml") || lower.includes("config")) {
+        return explain("配置文件缺失或格式有误。", "确认程序目录里有 config.yaml；如果刚导入过配置，可尝试 Restore backup。");
+      }
+      return explain("操作没有完成。", text || "请重试一次；如果反复出现，把当前日志链接和操作步骤留作排查。");
+    }
+
+    function actionError(action, error) {
+      const actionEn = {
+        "检查程序状态": "check app status",
+        "保存 Token": "save token",
+        "导出配置": "export config",
+        "导入配置": "import config",
+        "恢复备份": "restore backup",
+        "更新配置": "update config",
+        "删除配置": "delete config entry",
+        "加载配置": "load config",
+        "读取战斗列表": "load fights",
+        "生成时间轴": "build timeline"
+      }[action] || action;
+      return currentLanguage === "zh"
+        ? `${action}失败。\n${friendlyError(error?.message || error)}`
+        : `Failed to ${actionEn}.\n${friendlyError(error?.message || error)}`;
+    }
+
+    function showCopyModal(text, copied) {
+      mrtPreview.value = text;
+      copyModalNote.innerText = copied
+        ? t("copiedMrt")
+        : t("copyBlocked");
+      copyModal.style.display = "flex";
+      setTimeout(() => {
+        mrtPreview.focus();
+        mrtPreview.select();
+      }, 0);
+    }
+
+    function hideCopyModal() {
+      copyModal.style.display = "none";
+    }
+
+    function tokenLooksInvalid(token) {
+      const value = String(token || "").trim();
+      const lower = value.toLowerCase();
+      if (!value) return currentLanguage === "zh" ? "请先粘贴 WCL API Token。" : "Paste your WCL API token first.";
+      if (lower.startsWith("http://") || lower.startsWith("https://") || lower.includes("warcraftlogs.com/reports/")) {
+        return currentLanguage === "zh"
+          ? "这里看起来填成了日志链接。请在这里粘贴 WCL API Token，把日志链接填到下方 URL 栏。"
+          : "This looks like a report URL. Paste the WCL API token here, then put the report link in the URL field below.";
+      }
+      if (/\s/.test(value)) return currentLanguage === "zh" ? "Token 应该是一整段字符，中间不要有空格或换行。" : "Token should be one continuous string without spaces or line breaks.";
+      if (value.length < 20) return currentLanguage === "zh" ? "Token 看起来太短，请粘贴完整的 WCL API Token。" : "Token looks too short. Paste the full WCL API token.";
+      return "";
+    }
+
+    function setButtonLoading(button, isLoading, loadingText, normalText) {
+      button.disabled = isLoading;
+      button.innerText = isLoading ? loadingText : normalText;
+    }
+
+    function formatToDate(seconds) {
+      const date = new Date(BASE_TIME.getTime());
+      date.setSeconds(seconds);
+      return date;
+    }
+
+    function formatRelTime(seconds) {
+      const sign = seconds < 0 ? "-" : "";
+      const abs = Math.abs(seconds);
+      const minutes = String(Math.floor(abs / 60)).padStart(2, "0");
+      const secs = String(Math.floor(abs % 60)).padStart(2, "0");
+      return `${sign}${minutes}:${secs}`;
+    }
+
+    function formatMrtTime(seconds) {
+      const sign = seconds < 0 ? "-" : "";
+      const abs = Math.max(0, Math.abs(Number(seconds) || 0));
+      const minutes = String(Math.floor(abs / 60)).padStart(2, "0");
+      const secValue = abs % 60;
+      const secText = secValue.toFixed(1).padStart(4, "0");
+      return `${sign}${minutes}:${secText}`;
+    }
+
+    function customTimeFormat(dateObj) {
+      const date = dateObj && typeof dateObj.toDate === "function" ? dateObj.toDate() : new Date(dateObj);
+      const diffSec = Math.round((date.getTime() - BASE_TIME.getTime()) / 1000);
+      return formatRelTime(diffSec);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function iconUrl(icon) {
+      if (!icon) return "";
+      if (/^https?:\/\//i.test(icon)) return icon;
+      const cleaned = String(icon).replace(/^\/+/, "");
+      return `https://assets.rpglogs.com/img/warcraft/abilities/${cleaned}`;
+    }
+
+    function shortEventName(event) {
+      const compact = String(displayEventName(event) || "").replace(/[()]/g, "");
+      if (compact.length <= 4) return compact;
+      return event.kind === "BOSS" ? compact.slice(0, 4) : compact.slice(0, 3);
+    }
+
+    function timelineContent(event) {
+      if (event.kind === "DEATH") {
+        const cls = CLASS_ABBR[event.playerClass] || String(event.playerClass || "P").slice(0, 2).toUpperCase();
+        const color = event.playerColor || "#ff6b6b";
+        return `<span class="timeline-item-content"><span class="death-marker" style="--death-color:${escapeHtml(color)}">${escapeHtml(cls)}</span></span>`;
+      }
+      const url = iconUrl(event.icon);
+      const img = url
+        ? `<img class="timeline-icon" src="${escapeHtml(url)}" onerror="const fallback=document.createElement('span');fallback.className='overview-fallback-dot';this.replaceWith(fallback);">`
+        : `<span class="overview-fallback-dot"></span>`;
+      if (displayDensity === "overview" || displayDensity === "detail") {
+        return `<span class="timeline-item-content">${img}</span>`;
+      }
+      const text = displayEventName(event) + (event.who ? ` (${event.who})` : "");
+      return `<span class="timeline-item-content">${img}<span>${escapeHtml(text)}</span></span>`;
+    }
+
+    function eventSkillKey(event, bossIndex) {
+      if (event.kind === "DEATH") return `DEATH::${bossIndex}::${event.sourceId || event.who || ""}`;
+      return event.kind === "BOSS" ? `BOSS::${bossIndex}::${event.name}` : `${event.kind}::${event.name}`;
+    }
+
+    function getFightIdFromUrl(url) {
+      const match = url.match(/[?#&]fight=(\d+)/);
+      return match ? match[1] : "";
+    }
+
+    function resetFightSelect(message) {
+      fightSelect.innerHTML = `<option value="">${escapeHtml(message)}</option>`;
+      fightSelect.disabled = true;
+      loadButton.disabled = true;
+    }
+
+    function resetFilters() {
+      currentData = null;
+      activeView = "timeline";
+      filterPanel.style.display = "none";
+      configPanel.style.display = "none";
+      aboutPanel.style.display = "none";
+      aboutButton.classList.remove("active");
+      coveragePanel.style.display = "none";
+      bossFilter.innerHTML = "";
+      filterGrid.innerHTML = "";
+      coverageList.innerHTML = "";
+      mainContainer.innerHTML = "";
+      mainContainer.style.display = "block";
+      timelineViewButton.classList.add("active");
+      coverageViewButton.classList.remove("active");
+      overviewDensityButton.classList.toggle("active", displayDensity === "overview");
+      detailDensityButton.classList.toggle("active", displayDensity === "detail");
+      setConfigButtonActive(false);
+      syncDisplayModeControls();
+      setGuide(t("quickStart"), [t("quick1"), t("quick2"), t("quick3"), t("quick4"), t("quick5")]);
+    }
+
+    async function postJson(url, payload) {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Request failed");
+      return data;
+    }
+
+    async function checkAppStatus() {
+      try {
+        const data = await postJson("/api/status", {});
+        appStatusData = data;
+        updateAboutStatus(data);
+        tokenFileState.innerText = currentLanguage === "zh" ? `Token 文件：${data.tokenFile || "token.txt"}` : `Token file: ${data.tokenFile || "token.txt"}`;
+        configFileState.innerText = currentLanguage === "zh" ? `配置文件：${data.configFile || "config.yaml"}` : `Config file: ${data.configFile || "config.yaml"}`;
+
+        if (!data.tokenLoaded) {
+          setBadge(tokenBadge, "bad", t("tokenMissing"));
+          setTokenState(friendlyError(data.tokenError || "Token not saved yet."));
+          setSettingsVisible(true);
+          setStatus(currentLanguage === "zh" ? "请先在设置里保存 WCL API Token。" : "Save your WCL API token in Settings first.");
+        } else {
+          setBadge(tokenBadge, "ok", t("tokenSaved"));
+          setTokenState(currentLanguage === "zh" ? `Token 已保存。长度：${data.tokenLength || 0}` : `Token saved. Length: ${data.tokenLength || 0}`);
+        }
+
+        if (!data.configLoaded) {
+          setBadge(configBadge, "bad", t("configError"));
+          setSettingsVisible(true);
+          setStatus(friendlyError(data.configError || "Missing config.yaml."));
+          return;
+        }
+
+        setBadge(configBadge, "ok", t("configLoaded"));
+        if (!data.tokenLoaded) {
+          return;
+        }
+
+        if (!settingsPinnedOpen) setSettingsVisible(false);
+        setStatus(currentLanguage === "zh" ? "粘贴日志链接，读取战斗列表，然后选择要查看的战斗。" : "Paste a report link, load fights, then choose the pull you want to inspect.");
+      } catch (error) {
+        setBadge(tokenBadge, "warn", t("tokenUnknown"));
+        setBadge(configBadge, "warn", t("configUnknown"));
+        setSettingsVisible(true);
+        setStatus(actionError("检查程序状态", error));
+      }
+    }
+
+    async function saveToken() {
+      const token = tokenInput.value.trim();
+      const tokenError = tokenLooksInvalid(token);
+      if (tokenError) {
+        setTokenState(tokenError);
+        return;
+      }
+
+      setButtonLoading(saveTokenButton, true, currentLanguage === "zh" ? "保存中..." : "Saving...", t("saveToken"));
+      setTokenState(currentLanguage === "zh" ? "正在本地保存 Token..." : "Saving token locally...");
+      try {
+        const data = await postJson("/api/token", { token });
+        tokenInput.value = "";
+        if (!data.tokenLoaded) {
+          setBadge(tokenBadge, "bad", t("tokenMissing"));
+          setTokenState(friendlyError(data.tokenError || "Token was saved, but could not be loaded."));
+          setSettingsVisible(true);
+          return;
+        }
+        appStatusData = data;
+        setBadge(tokenBadge, "ok", t("tokenSaved"));
+        setTokenState(currentLanguage === "zh" ? `Token 已保存。长度：${data.tokenLength || 0}` : `Token saved. Length: ${data.tokenLength || 0}`);
+        settingsPinnedOpen = false;
+        setSettingsVisible(false);
+        setStatus(currentLanguage === "zh" ? "Token 已保存。现在可以粘贴日志链接并读取战斗列表。" : "Token saved. Paste a report link and load fights.");
+      } catch (error) {
+        setBadge(tokenBadge, "bad", t("tokenMissing"));
+        setTokenState(actionError("保存 Token", error));
+      } finally {
+        setButtonLoading(saveTokenButton, false, currentLanguage === "zh" ? "保存中..." : "Saving...", t("saveToken"));
+      }
+    }
+
+    function deleteButton(attrs) {
+      const dataAttrs = Object.entries(attrs)
+        .map(([key, value]) => `data-${key}="${escapeHtml(value)}"`)
+        .join(" ");
+      return `<button class="config-delete" type="button" ${dataAttrs} title="Delete this entry">x</button>`;
+    }
+
+    function skillLine(skill, attrs = null) {
+      const source = skill.source || "cast";
+      const once = skill.once ? " once" : "";
+      const dedup = skill.dedup_ms ? ` dedup ${skill.dedup_ms / 1000}s` : "";
+      const damageDisplay = source === "damage" && skill.damage_display ? ` ${skill.damage_display}` : "";
+      const damageSelect = source === "damage"
+        ? `<select class="config-inline-select damage-display-select" data-id="${escapeHtml(skill.id || "")}" data-previous="${escapeHtml(skill.damage_display || "target")}" title="${escapeHtml(t("damageDisplayHelp"))}">
+            <option value="target" ${(!skill.damage_display || skill.damage_display === "target") ? "selected" : ""}>${escapeHtml(t("damageDisplayTarget"))}</option>
+            <option value="interval" ${skill.damage_display === "interval" ? "selected" : ""}>${escapeHtml(t("damageDisplayInterval"))}</option>
+            <option value="aura" ${skill.damage_display === "aura" ? "selected" : ""}>${escapeHtml(t("damageDisplayAura"))}</option>
+          </select>`
+        : "";
+      const remove = attrs ? deleteButton(attrs) : "";
+      return `<span class="config-chip">${escapeHtml(displaySkillName(skill))} <span class="config-muted">#${escapeHtml(skill.id || "?")} ${escapeHtml(source)}${damageDisplay}${once}${dedup}</span>${damageSelect}${remove}</span>`;
+    }
+
+    function mapEntriesHtml(map, kind = "") {
+      const entries = Object.entries(map || {}).sort((a, b) => displayMapEntryName(a[0], a[1]).localeCompare(displayMapEntryName(b[0], b[1]), "zh-CN"));
+      if (!entries.length) return `<div class="config-muted">No entries.</div>`;
+      return entries.map(([id, name]) => {
+        const label = displayMapEntryName(id, name);
+        const remove = kind ? deleteButton({ kind, key: id, label }) : "";
+        return `<span class="config-chip">${escapeHtml(displayMapEntryName(id, name))} <span class="config-muted">#${escapeHtml(id)}</span>${remove}</span>`;
+      }).join("");
+    }
+
+    function setConfigEditorState(message, type = "") {
+      configEditorState.innerText = message;
+      configEditorState.className = `config-editor-state ${type}`.trim();
+    }
+
+    function setSupportEditorState(message, type = "") {
+      supportEditorState.innerText = message;
+      supportEditorState.className = `config-editor-state ${type}`.trim();
+    }
+
+    function renderSpellPreview(preview, idValue) {
+      const id = String(idValue || "").trim();
+      preview.className = "spell-preview";
+      if (!id) {
+        preview.innerHTML = "";
+        return;
+      }
+
+      if (!currentData) {
+        preview.classList.add("warn");
+        preview.innerHTML = currentLanguage === "zh"
+          ? `输入的是 #${escapeHtml(id)}。生成过一次时间轴后，可以自动识别名称和图标。`
+          : `Entered #${escapeHtml(id)}. Build a timeline once to auto-detect name and icon.`;
+        return;
+      }
+
+      const name = abilityNameFromWcl(id);
+      const icon = abilityIconFromWcl(id);
+      if (!name && !icon) {
+        preview.classList.add("warn");
+        preview.innerHTML = currentLanguage === "zh"
+          ? `当前日志没有识别到 #${escapeHtml(id)}。仍可保存，但请确认 ID 正确。`
+          : `Current report did not identify #${escapeHtml(id)}. You can still save it, but check the ID.`;
+        return;
+      }
+
+      preview.classList.add("ok");
+      const image = icon
+        ? `<img class="spell-preview-icon" src="${escapeHtml(iconUrl(icon))}" alt="">`
+        : "";
+      preview.innerHTML = `${image}<span>${currentLanguage === "zh" ? "已识别" : "Detected"}: <strong>${escapeHtml(name || `#${id}`)}</strong> <span class="config-muted">#${escapeHtml(id)}</span></span>`;
+    }
+
+    function updateSpellPreviews() {
+      renderSpellPreview(configSpellPreview, configSkillIdInput.value);
+      renderSpellPreview(supportSpellPreview, supportSkillIdInput.value);
+    }
+
+    function setConfigFileToolState(message, type = "") {
+      configFileToolState.innerText = message;
+      configFileToolState.className = `config-editor-state ${type}`.trim();
+    }
+
+    function markFieldError(input, hasError) {
+      input.classList.toggle("field-error", hasError);
+    }
+
+    function clearFieldErrors(inputs) {
+      inputs.forEach(input => markFieldError(input, false));
+    }
+
+    function requireFields(fields, stateSetter, message) {
+      let ok = true;
+      fields.forEach(input => {
+        const missing = !String(input.value || "").trim();
+        markFieldError(input, missing);
+        if (missing) ok = false;
+      });
+      if (!ok) stateSetter(message, "error");
+      return ok;
+    }
+
+    function downloadFile(filename, text, type = "text/plain;charset=utf-8") {
+      const blob = new Blob([text], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function exportConfig() {
+      setButtonLoading(exportConfigButton, true, currentLanguage === "zh" ? "导出中..." : "Exporting...", t("exportConfig"));
+      setConfigFileToolState(currentLanguage === "zh" ? "正在准备 config.yaml..." : "Preparing config.yaml...");
+      try {
+        const data = await postJson("/api/config/export", {});
+        downloadFile(data.filename || "config.yaml", data.text || "", "text/yaml;charset=utf-8");
+        setConfigFileToolState(currentLanguage === "zh" ? "已导出 config.yaml。" : "Exported config.yaml.", "ok");
+        setStatus(currentLanguage === "zh" ? "配置已导出。" : "Config exported.");
+      } catch (error) {
+        setConfigFileToolState(friendlyError(error.message), "error");
+        setStatus(actionError("导出配置", error));
+      } finally {
+        setButtonLoading(exportConfigButton, false, currentLanguage === "zh" ? "导出中..." : "Exporting...", t("exportConfig"));
+      }
+    }
+
+    async function importConfigText(text) {
+      if (!window.confirm(currentLanguage === "zh" ? "导入这个文件并替换当前 config.yaml？程序会先写入备份。" : "Import this file and replace current config.yaml? A backup will be written first.")) return;
+      setButtonLoading(importConfigButton, true, currentLanguage === "zh" ? "导入中..." : "Importing...", t("importConfig"));
+      setConfigFileToolState(currentLanguage === "zh" ? "正在导入 config.yaml..." : "Importing config.yaml...");
+      try {
+        const data = await postJson("/api/config/import", { text });
+        renderConfigView(data);
+        populateConfigEditor(data);
+        setConfigFileToolState(currentLanguage === "zh" ? "已导入。原配置已备份为 config.yaml.bak。" : "Imported. Previous config was backed up to config.yaml.bak.", "ok");
+        setStatus(currentLanguage === "zh" ? "配置已导入。" : "Config imported.");
+      } catch (error) {
+        setConfigFileToolState(friendlyError(error.message), "error");
+        setStatus(actionError("导入配置", error));
+      } finally {
+        setButtonLoading(importConfigButton, false, currentLanguage === "zh" ? "导入中..." : "Importing...", t("importConfig"));
+        importConfigFile.value = "";
+      }
+    }
+
+    async function restoreConfigBackup() {
+      if (!window.confirm(currentLanguage === "zh" ? "恢复 config.yaml.bak 并替换当前 config.yaml？" : "Restore config.yaml.bak and replace current config.yaml?")) return;
+      setButtonLoading(restoreConfigButton, true, currentLanguage === "zh" ? "恢复中..." : "Restoring...", t("restoreBackup"));
+      setConfigFileToolState(currentLanguage === "zh" ? "正在恢复 config.yaml.bak..." : "Restoring config.yaml.bak...");
+      try {
+        const data = await postJson("/api/config/restore-backup", {});
+        renderConfigView(data);
+        populateConfigEditor(data);
+        setConfigFileToolState(currentLanguage === "zh" ? "已从 config.yaml.bak 恢复。" : "Restored from config.yaml.bak.", "ok");
+        setStatus(currentLanguage === "zh" ? "配置备份已恢复。" : "Config backup restored.");
+      } catch (error) {
+        setConfigFileToolState(friendlyError(error.message), "error");
+        setStatus(actionError("恢复备份", error));
+      } finally {
+        setButtonLoading(restoreConfigButton, false, currentLanguage === "zh" ? "恢复中..." : "Restoring...", t("restoreBackup"));
+      }
+    }
+
+    async function repairConfig() {
+      if (!window.confirm(currentLanguage === "zh"
+        ? "同步副本 Boss 技能到平铺兜底列表？程序会先写入备份。"
+        : "Sync dungeon boss skills into the flat fallback list? A backup will be written first."
+      )) return;
+      setButtonLoading(repairConfigButton, true, currentLanguage === "zh" ? "同步中..." : "Syncing...", t("repairConfig"));
+      setConfigFileToolState(currentLanguage === "zh" ? "正在同步配置兜底列表..." : "Syncing config fallback list...");
+      try {
+        const data = await postJson("/api/config/repair", {
+          abilityNames: currentData?.abilityNames || {}
+        });
+        renderConfigView(data);
+        populateConfigEditor(data);
+        const repair = data.repair || {};
+        setConfigFileToolState(currentLanguage === "zh"
+          ? `同步完成：补入 ${repair.addedFlat || 0} 个兜底技能，补全 ${repair.filledEnglish || 0} 个英文名。`
+          : `Sync complete: added ${repair.addedFlat || 0} fallback skills, filled ${repair.filledEnglish || 0} English names.`,
+          "ok"
+        );
+        setStatus(currentLanguage === "zh" ? "配置同步完成。" : "Config sync complete.");
+      } catch (error) {
+        setConfigFileToolState(friendlyError(error.message), "error");
+        setStatus(actionError("同步配置", error));
+      } finally {
+        setButtonLoading(repairConfigButton, false, currentLanguage === "zh" ? "同步中..." : "Syncing...", t("repairConfig"));
+      }
+    }
+
+    function updateConfigDamageDisplayState() {
+      const isDamage = configSkillSourceSelect.value === "damage";
+      configDamageDisplaySelect.disabled = !isDamage;
+      configDamageDisplaySelect.title = isDamage ? t("damageDisplayHelp") : "";
+    }
+
+    async function updateDamageDisplay(select) {
+      const id = select.dataset.id;
+      if (!id) return;
+      const previous = select.dataset.previous || "target";
+      select.disabled = true;
+      setConfigEditorState(currentLanguage === "zh" ? "正在更新 damage 显示策略..." : "Updating damage display strategy...");
+      try {
+        const data = await postJson("/api/config/update-damage-display", {
+          id,
+          damageDisplay: select.value
+        });
+        renderConfigView(data);
+        populateConfigEditor(data);
+        setConfigEditorState(currentLanguage === "zh" ? "显示策略已更新，备份已写入 config.yaml.bak。" : "Display strategy updated. A backup was written to config.yaml.bak.", "ok");
+        setStatus(currentLanguage === "zh" ? "配置已更新。" : "Config updated.");
+      } catch (error) {
+        select.value = previous;
+        select.disabled = false;
+        setConfigEditorState(friendlyError(error.message), "error");
+        setStatus(actionError("更新配置", error));
+      }
+    }
+
+    function updateSupportSourceState() {
+      const isConsumable = supportCategorySelect.value === "consumable";
+      supportSkillSourceSelect.disabled = !isConsumable;
+      supportSkillSourceSelect.title = isConsumable
+        ? "Choose where this item is detected from WCL events."
+        : "Only Item / Potion entries need source.";
+      setSupportEditorState(isConsumable
+        ? t("supportHelpConsumable")
+        : t("supportHelpBasic")
+      );
+    }
+
+    function updateConfigBossSelect() {
+      const dungeons = configData?.dungeons || [];
+      const dungeonIndex = Number(configDungeonSelect.value || 0);
+      const bosses = dungeons[dungeonIndex]?.bosses || [];
+      configBossSelect.innerHTML = bosses.map((boss, index) => {
+        const encounter = boss.encounterID ? ` #${boss.encounterID}` : "";
+        return `<option value="${index}">${escapeHtml(displayConfigBossName(boss) || `Boss ${index + 1}`)}${escapeHtml(encounter)}</option>`;
+      }).join("");
+      configBossSelect.disabled = bosses.length === 0;
+      addBossSkillButton.disabled = bosses.length === 0;
+    }
+
+    function populateConfigEditor(data) {
+      configData = data;
+      const dungeons = data?.dungeons || [];
+      const previousDungeon = configDungeonSelect.value;
+      configDungeonSelect.innerHTML = dungeons.map((dungeon, index) => (
+        `<option value="${index}">${escapeHtml(displayConfigDungeonName(dungeon) || `Dungeon ${index + 1}`)} (${(dungeon.bosses || []).length})</option>`
+      )).join("");
+      if (previousDungeon && Number(previousDungeon) < dungeons.length) {
+        configDungeonSelect.value = previousDungeon;
+      }
+      configDungeonSelect.disabled = dungeons.length === 0;
+      updateConfigBossSelect();
+      updateConfigDamageDisplayState();
+      if (!dungeons.length) {
+        setConfigEditorState("No dungeon data in config.yaml.", "error");
+      } else if (!configEditorState.innerText || configEditorState.classList.contains("error")) {
+        setConfigEditorState("Choose a dungeon and boss, then add one tracked boss skill.");
+      }
+    }
+
+    async function addBossSkill() {
+      const name = configSkillNameInput.value.trim();
+      const id = configSkillIdInput.value.trim();
+      const nameEn = abilityNameFromWcl(id);
+      if (!requireFields(
+        [configSkillIdInput],
+        setConfigEditorState,
+        currentLanguage === "zh" ? "技能 ID 必须填写，名称可以留空。" : "Spell ID is required. Name is optional."
+      )) {
+        return;
+      }
+
+      setButtonLoading(addBossSkillButton, true, currentLanguage === "zh" ? "保存中..." : "Saving...", t("addSkill"));
+      setConfigEditorState(currentLanguage === "zh" ? "正在保存技能到 config.yaml..." : "Saving skill to config.yaml...");
+      try {
+        const data = await postJson("/api/config/add-boss-skill", {
+          dungeonIndex: Number(configDungeonSelect.value),
+          bossIndex: Number(configBossSelect.value),
+          name,
+          nameEn,
+          id,
+          source: configSkillSourceSelect.value,
+          damageDisplay: configDamageDisplaySelect.value
+        });
+        renderConfigView(data);
+        populateConfigEditor(data);
+        configSkillNameInput.value = "";
+        configSkillIdInput.value = "";
+        updateSpellPreviews();
+        clearFieldErrors([configSkillNameInput, configSkillIdInput]);
+        setConfigEditorState(currentLanguage === "zh" ? "已保存。备份已写入 config.yaml.bak。" : "Saved. A backup was written to config.yaml.bak.", "ok");
+        setStatus(currentLanguage === "zh" ? "配置已更新。" : "Config updated.");
+      } catch (error) {
+        setConfigEditorState(friendlyError(error.message), "error");
+        setStatus(actionError("更新配置", error));
+      } finally {
+        setButtonLoading(addBossSkillButton, false, currentLanguage === "zh" ? "保存中..." : "Saving...", t("addSkill"));
+      }
+    }
+
+    async function addSupportSkill() {
+      const name = supportSkillNameInput.value.trim();
+      const id = supportSkillIdInput.value.trim();
+      const nameEn = abilityNameFromWcl(id);
+      if (!requireFields(
+        [supportSkillIdInput],
+        setSupportEditorState,
+        currentLanguage === "zh" ? "技能 ID 必须填写，显示名可以留空。" : "Spell ID is required. Display name is optional."
+      )) {
+        return;
+      }
+
+      setButtonLoading(addSupportSkillButton, true, currentLanguage === "zh" ? "保存中..." : "Saving...", t("addEntry"));
+      setSupportEditorState(currentLanguage === "zh" ? "正在保存条目到 config.yaml..." : "Saving entry to config.yaml...");
+      try {
+        const data = await postJson("/api/config/add-support-skill", {
+          category: supportCategorySelect.value,
+          name,
+          nameEn,
+          id,
+          source: supportSkillSourceSelect.value
+        });
+        renderConfigView(data);
+        populateConfigEditor(data);
+        supportSkillNameInput.value = "";
+        supportSkillIdInput.value = "";
+        updateSpellPreviews();
+        clearFieldErrors([supportSkillNameInput, supportSkillIdInput]);
+        setSupportEditorState(currentLanguage === "zh" ? "已保存。备份已写入 config.yaml.bak。" : "Saved. A backup was written to config.yaml.bak.", "ok");
+        setStatus(currentLanguage === "zh" ? "配置已更新。" : "Config updated.");
+      } catch (error) {
+        setSupportEditorState(friendlyError(error.message), "error");
+        setStatus(actionError("更新配置", error));
+      } finally {
+        setButtonLoading(addSupportSkillButton, false, currentLanguage === "zh" ? "保存中..." : "Saving...", t("addEntry"));
+      }
+    }
+
+    async function deleteConfigEntry(button) {
+      const label = button.dataset.label || button.dataset.key || "this entry";
+      if (!window.confirm(currentLanguage === "zh" ? `从 config.yaml 删除 ${label}？` : `Delete ${label} from config.yaml?`)) return;
+
+      setConfigEditorState(currentLanguage === "zh" ? "正在从 config.yaml 删除条目..." : "Deleting entry from config.yaml...");
+      try {
+        const data = await postJson("/api/config/delete-entry", {
+          kind: button.dataset.kind,
+          key: button.dataset.key,
+          dungeonIndex: button.dataset.dungeonIndex,
+          bossIndex: button.dataset.bossIndex
+        });
+        renderConfigView(data);
+        populateConfigEditor(data);
+        setConfigEditorState(currentLanguage === "zh" ? "已删除。备份已写入 config.yaml.bak。" : "Deleted. A backup was written to config.yaml.bak.", "ok");
+        setSupportEditorState(currentLanguage === "zh" ? "配置已更新。" : "Config updated.", "ok");
+        setStatus(currentLanguage === "zh" ? "配置已更新。" : "Config updated.");
+      } catch (error) {
+        setConfigEditorState(friendlyError(error.message), "error");
+        setStatus(actionError("删除配置", error));
+      }
+    }
+
+    function renderConfigView(data) {
+      const dungeonCount = data.dungeons?.length || 0;
+      const bossCount = (data.dungeons || []).reduce((sum, dungeon) => sum + (dungeon.bosses?.length || 0), 0);
+      const nestedSkillCount = (data.dungeons || []).reduce((sum, dungeon) => (
+        sum + (dungeon.bosses || []).reduce((bossSum, boss) => bossSum + (boss.skills?.length || 0), 0)
+      ), 0);
+      const flatBossCount = data.flatBossSkills?.length || 0;
+      const consumableCount = data.consumables?.length || 0;
+      const diagnosticLabels = {
+        nested_not_flat: currentLanguage === "zh" ? "分层技能未进入兜底列表" : "Dungeon skills missing from flat fallback",
+        flat_not_nested: currentLanguage === "zh" ? "兜底技能未归属到 Boss" : "Flat skills not assigned to a boss",
+        missing_english: currentLanguage === "zh" ? "缺少英文名" : "Missing English names",
+        missing_encounter: currentLanguage === "zh" ? "Boss 缺少 encounterID" : "Bosses missing encounterID"
+      };
+      const diagnosticsHtml = (data.diagnostics || []).length
+        ? `<div class="config-diagnostics">${(data.diagnostics || []).map(issue => {
+            const label = diagnosticLabels[issue.code] || issue.code;
+            const examples = (issue.examples || []).length ? `: ${(issue.examples || []).join(", ")}` : "";
+            return `<span class="config-diagnostic" title="${escapeHtml(label + examples)}">${escapeHtml(label)}：${escapeHtml(issue.count || 0)}</span>`;
+          }).join("")}</div>`
+        : `<div class="config-diagnostics"><span class="config-diagnostic">${currentLanguage === "zh" ? "配置结构看起来很干净" : "Config structure looks clean"}</span></div>`;
+
+      configSummary.innerText =
+        currentLanguage === "zh"
+          ? `文件：${data.file || "config.yaml"}\n副本：${dungeonCount}，Boss：${bossCount}，副本 Boss 技能：${nestedSkillCount}，平铺 Boss 技能：${flatBossCount}，消耗品：${consumableCount}`
+          : `File: ${data.file || "config.yaml"}\nDungeons: ${dungeonCount}, Bosses: ${bossCount}, Dungeon boss skills: ${nestedSkillCount}, Flat boss skills: ${flatBossCount}, Consumables: ${consumableCount}`;
+
+      const dungeonsHtml = (data.dungeons || []).map((dungeon, dungeonIndex) => {
+        const bosses = dungeon.bosses || [];
+        const bossHtml = bosses.map((boss, bossIndex) => {
+          const skills = boss.skills || [];
+          const skillHtml = skills.length
+            ? skills.map(skill => skillLine(skill, {
+                kind: "dungeon_boss_skill",
+                key: skill.id,
+                "dungeon-index": dungeonIndex,
+                "boss-index": bossIndex,
+                label: displaySkillName(skill) || skill.id
+              })).join("")
+            : `<div class="config-muted">${currentLanguage === "zh" ? "无技能。" : "No skills."}</div>`;
+          const encounter = boss.encounterID ? ` #${boss.encounterID}` : "";
+          return `
+            <details class="config-details">
+              <summary>${escapeHtml(displayConfigBossName(boss))}<span class="config-muted">${escapeHtml(encounter)}</span> (${skills.length})</summary>
+              <div class="config-list">${skillHtml}</div>
+            </details>
+          `;
+        }).join("");
+        return `
+          <details class="config-details" open>
+            <summary>${escapeHtml(displayConfigDungeonName(dungeon))} <span class="config-muted">(${bosses.length} ${currentLanguage === "zh" ? "个 Boss" : "bosses"})</span></summary>
+            <div class="config-list">${bossHtml || `<div class="config-muted">${currentLanguage === "zh" ? "无 Boss。" : "No bosses."}</div>`}</div>
+          </details>
+        `;
+      }).join("");
+
+      const flatBossHtml = (data.flatBossSkills || []).map(skill => skillLine(skill, {
+        kind: "flat_boss_skill",
+        key: skill.id,
+        label: displaySkillName(skill) || skill.id
+      })).join("") || `<div class="config-muted">${currentLanguage === "zh" ? "无平铺 Boss 技能。" : "No flat boss skills."}</div>`;
+      const consumablesHtml = (data.consumables || []).map(skill => skillLine(skill, {
+        kind: "consumable",
+        key: skill.id,
+        label: displaySkillName(skill) || skill.id
+      })).join("") || `<div class="config-muted">${currentLanguage === "zh" ? "无消耗品。" : "No consumables."}</div>`;
+
+      configContent.innerHTML = `
+        ${diagnosticsHtml}
+        <div class="config-card">
+          <h3>${currentLanguage === "zh" ? "副本 / Boss" : "Dungeons / Bosses"}</h3>
+          <div class="config-scroll">${dungeonsHtml || `<div class="config-muted">No dungeons.</div>`}</div>
+        </div>
+        <div class="config-card">
+          <h3>${currentLanguage === "zh" ? "平铺 Boss 技能" : "Flat Boss Skills"}</h3>
+          <div class="config-scroll config-list">${flatBossHtml}</div>
+        </div>
+        <div class="config-card">
+          <h3>${t("healingCds")}</h3>
+          <div class="config-scroll config-list">${mapEntriesHtml(data.monkCds, "monk_cd")}</div>
+        </div>
+        <div class="config-card">
+          <h3>${t("defensives")}</h3>
+          <div class="config-scroll config-list">
+            <strong>${currentLanguage === "zh" ? "个人" : "Personal"}</strong>
+            ${mapEntriesHtml(data.personalDefensives, "personal_defensive")}
+            <strong>${currentLanguage === "zh" ? "团队" : "Raid"}</strong>
+            ${mapEntriesHtml(data.raidDefensives, "raid_defensive")}
+          </div>
+        </div>
+        <div class="config-card">
+          <h3>${t("itemsPotions")}</h3>
+          <div class="config-scroll config-list">${consumablesHtml}</div>
+        </div>
+      `;
+    }
+
+    async function showConfigView() {
+      if (configPanel.style.display === "block") {
+        closeConfigView();
+        return;
+      }
+      configPanel.style.display = "block";
+      setConfigButtonActive(true);
+      aboutPanel.style.display = "none";
+      aboutButton.classList.remove("active");
+      coveragePanel.style.display = "none";
+      mainContainer.style.display = "none";
+      configSummary.innerText = "Loading config...";
+      configContent.innerHTML = "";
+      try {
+        const data = await postJson("/api/config-view", {});
+        renderConfigView(data);
+        populateConfigEditor(data);
+        updateSupportSourceState();
+        setGuide(currentLanguage === "zh" ? "配置模式" : "Config mode", [t("configGuide1"), t("configGuide2"), t("configGuide3")]);
+        setStatus(currentLanguage === "zh" ? "配置已加载。" : "Config loaded.");
+      } catch (error) {
+        const message = actionError("加载配置", error);
+        configSummary.innerText = message;
+        setStatus(message);
+      }
+    }
+    function closeConfigView() {
+      configPanel.style.display = "none";
+      setConfigButtonActive(false);
+      if (currentData) {
+        applyFilters();
+      } else {
+        mainContainer.style.display = "block";
+      }
+    }
+
+    async function fetchFights() {
+      const logUrl = logUrlInput.value.trim();
+      if (!logUrl) {
+        setStatus(friendlyError("report URL is empty"));
+        return;
+      }
+
+      resetFilters();
+      resetFightSelect(currentLanguage === "zh" ? "正在读取战斗..." : "Loading fights...");
+      setButtonLoading(fetchFightsButton, true, currentLanguage === "zh" ? "读取中..." : "Loading...", t("loadFights"));
+      setStatus(currentLanguage === "zh" ? "正在读取战斗列表..." : "Loading fight list...");
+
+      try {
+        const data = await postJson("/api/fights", { logUrl });
+        if (!Array.isArray(data.fights) || data.fights.length === 0) {
+          throw new Error("No fights found in this report.");
+        }
+
+        const fightFromUrl = getFightIdFromUrl(logUrl);
+        fightSelect.innerHTML = "";
+        data.fights.forEach(fight => {
+          const option = document.createElement("option");
+          option.value = fight.id;
+          option.textContent = fight.label;
+          if (String(fight.id) === fightFromUrl) option.selected = true;
+          fightSelect.appendChild(option);
+        });
+
+        fightSelect.disabled = false;
+        loadButton.disabled = false;
+        setGuide("Next step", [
+          currentLanguage === "zh" ? "选择你要查看的战斗" : "Choose the pull you want to inspect",
+          currentLanguage === "zh" ? "点击生成时间轴" : "Click Build timeline",
+          currentLanguage === "zh" ? "如果链接带有 fight=，会自动选中对应战斗" : "If the report link already has fight=, it is selected automatically"
+        ]);
+        setStatus(currentLanguage === "zh" ? `已读取 ${data.fights.length} 场战斗：${data.reportTitle}` : `Loaded ${data.fights.length} fights: ${data.reportTitle}`);
+      } catch (error) {
+        resetFightSelect(t("loadFightsFirst"));
+        setStatus(actionError("读取战斗列表", error));
+      } finally {
+        setButtonLoading(fetchFightsButton, false, currentLanguage === "zh" ? "读取中..." : "Loading...", t("loadFights"));
+      }
+    }
+
+    async function loadTimeline() {
+      const logUrl = logUrlInput.value.trim();
+      const fightId = fightSelect.value;
+      if (!logUrl) {
+        setStatus(friendlyError("report URL is empty"));
+        return;
+      }
+      if (!fightId) {
+        setStatus(friendlyError("choose one pull"));
+        return;
+      }
+
+      resetFilters();
+      setButtonLoading(loadButton, true, currentLanguage === "zh" ? "生成中..." : "Building...", t("buildTimeline"));
+      setStatus(currentLanguage === "zh" ? "正在抓取事件并生成时间轴..." : "Fetching events and building timeline...");
+
+      try {
+        const data = await postJson("/api/timeline", { logUrl, fightId });
+        if (!data || !Array.isArray(data.bosses)) throw new Error("Invalid timeline data.");
+        currentData = data;
+        bossTimelineZooms = {};
+        pendingTimelineFocus = null;
+        buildFilters(data);
+        updateSpellPreviews();
+        applyFilters();
+        const dungeonText = data.dungeon ? (currentLanguage === "zh" ? ` 副本：${data.dungeon.name}。` : ` Dungeon: ${data.dungeon.name}.`) : "";
+        setGuide(t("timelineReadyTitle"), [
+          t("timelineReady1"),
+          t("timelineReady2"),
+          t("timelineReady3"),
+          t("timelineReady4")
+        ]);
+        setStatus((currentLanguage === "zh" ? "时间轴已生成。" : "Timeline ready.") + dungeonText);
+      } catch (error) {
+        mainContainer.innerText = "";
+        setStatus(actionError("生成时间轴", error));
+      } finally {
+        setButtonLoading(loadButton, false, currentLanguage === "zh" ? "生成中..." : "Building...", t("buildTimeline"));
+      }
+    }
+
+    function collectSkillNames(data) {
+      const result = { MONK: new Set(), DEF: new Set(), ITEM: new Set() };
+      data.bosses.forEach(boss => {
+        boss.events.forEach(event => {
+          if (event.kind === "DEATH") return;
+          if (result[event.kind]) result[event.kind].add(event.name);
+        });
+      });
+      return result;
+    }
+
+    function updateTimelineSummary(data) {
+      if (!currentData || !data) {
+        timelineSummary.innerText = t("noTimelineLoaded");
+        return;
+      }
+      const dungeon = currentData.dungeon?.name || (currentLanguage === "zh" ? "未识别" : "Unknown");
+      const enabledBosses = data.bosses.filter(boss => boss.events && boss.events.length > 0).length;
+      const totalBosses = currentData.bosses.length;
+      const visibleEvents = data.bosses.reduce((sum, boss) => sum + (boss.events?.length || 0), 0);
+      const visibleSkills = new Set();
+      data.bosses.forEach(boss => {
+        boss.events.forEach(event => {
+          if (event.kind !== "DEATH") visibleSkills.add(`${event.kind}:${event.name}`);
+        });
+      });
+      const deaths = currentData.deathStats || { total: 0, boss: 0, nonBoss: 0 };
+      timelineSummary.innerText = currentLanguage === "zh"
+        ? `当前日志识别副本：${dungeon} | 已显示 Boss：${enabledBosses}/${totalBosses} | 可见事件：${visibleEvents} | 可见技能：${visibleSkills.size} | 死亡次数：${deaths.total || 0} | Boss击杀：${deaths.boss || 0} | 非Boss击杀：${deaths.nonBoss || 0}`
+        : `Detected dungeon: ${dungeon} | Visible bosses: ${enabledBosses}/${totalBosses} | Visible events: ${visibleEvents} | Visible skills: ${visibleSkills.size} | Deaths: ${deaths.total || 0} | Boss deaths: ${deaths.boss || 0} | Non-boss deaths: ${deaths.nonBoss || 0}`;
+    }
+
+    function buildBossFilters(data) {
+      bossFilter.innerHTML = "";
+      const title = document.createElement("div");
+      title.className = "filter-title";
+      title.textContent = t("bossSegments");
+      bossFilter.appendChild(title);
+
+      const list = document.createElement("div");
+      list.className = "boss-list";
+
+      data.bosses.forEach((boss, index) => {
+        const row = document.createElement("details");
+        row.className = "boss-filter-row";
+        row.open = true;
+
+        const summary = document.createElement("summary");
+        const bossLabel = document.createElement("label");
+        const bossCheckbox = document.createElement("input");
+        bossCheckbox.type = "checkbox";
+        bossCheckbox.checked = true;
+        bossCheckbox.dataset.bossIndex = String(index);
+        bossCheckbox.dataset.role = "boss-segment";
+        bossLabel.appendChild(bossCheckbox);
+        bossLabel.appendChild(document.createTextNode(`Boss ${index + 1}: ${boss.name}`));
+        summary.appendChild(bossLabel);
+        row.appendChild(summary);
+
+        const names = Array.from(new Set(
+          boss.events.filter(event => event.kind === "BOSS").map(event => event.name)
+        )).sort((a, b) => a.localeCompare(b, "zh-CN"));
+
+        if (names.length > 0) {
+          const skills = document.createElement("div");
+          skills.className = "boss-skill-list";
+          names.forEach(name => {
+            const sampleEvent = boss.events.find(event => event.kind === "BOSS" && event.name === name);
+            const label = document.createElement("label");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = true;
+            checkbox.dataset.kind = "BOSS";
+            checkbox.dataset.name = name;
+            checkbox.dataset.bossIndex = String(index);
+            checkbox.dataset.skillKey = `BOSS::${index}::${name}`;
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(sampleEvent ? displayEventName(sampleEvent) : name));
+            skills.appendChild(label);
+          });
+          row.appendChild(skills);
+        }
+
+        list.appendChild(row);
+      });
+
+      bossFilter.appendChild(list);
+    }
+
+    function buildFilters(data) {
+      const namesByKind = collectSkillNames(data);
+      filterGrid.innerHTML = "";
+      filterGrid.appendChild(bossFilter);
+      buildBossFilters(data);
+
+      ["MONK", "DEF", "ITEM"].forEach(kind => {
+        const names = Array.from(namesByKind[kind]).sort((a, b) => a.localeCompare(b, "zh-CN"));
+        if (names.length === 0) return;
+
+        const group = document.createElement("div");
+        group.className = "filter-group";
+
+        const header = document.createElement("label");
+        header.className = "filter-kind";
+        header.innerHTML = `<input type="checkbox" data-kind="${kind}" checked> ${kindLabel(kind)}`;
+        group.appendChild(header);
+
+        const list = document.createElement("div");
+        list.className = "skill-list";
+        names.forEach(name => {
+          const sampleEvent = data.bosses.flatMap(boss => boss.events).find(event => event.kind === kind && event.name === name);
+          const label = document.createElement("label");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = true;
+          checkbox.dataset.kind = kind;
+          checkbox.dataset.name = name;
+          checkbox.dataset.skillKey = `${kind}::${name}`;
+          label.appendChild(checkbox);
+          label.appendChild(document.createTextNode(sampleEvent ? displayEventName(sampleEvent) : name));
+          list.appendChild(label);
+        });
+
+        group.appendChild(list);
+        filterGrid.appendChild(group);
+      });
+
+      filterPanel.style.display = "block";
+    }
+
+    function getCheckedBossIndexes() {
+      const checked = new Set();
+      bossFilter.querySelectorAll('input[data-role="boss-segment"]').forEach(input => {
+        if (input.checked) checked.add(Number(input.dataset.bossIndex));
+      });
+      return checked;
+    }
+
+    function getCheckedKinds() {
+      const checked = new Set();
+      if (bossFilter.querySelector(".boss-skill-list input:checked")) checked.add("BOSS");
+      filterGrid.querySelectorAll(".filter-kind input").forEach(input => {
+        if (input.checked) checked.add(input.dataset.kind);
+      });
+      return checked;
+    }
+
+    function getCheckedSkillKeys() {
+      const checked = new Set();
+      bossFilter.querySelectorAll(".boss-skill-list input").forEach(input => {
+        if (input.checked) checked.add(input.dataset.skillKey);
+      });
+      filterGrid.querySelectorAll(".skill-list input").forEach(input => {
+        if (input.checked) checked.add(input.dataset.skillKey);
+      });
+      return checked;
+    }
+
+    function getFilteredData() {
+      if (!currentData) return { bosses: [] };
+      const checkedBosses = getCheckedBossIndexes();
+      const checkedKinds = getCheckedKinds();
+      const checkedSkills = getCheckedSkillKeys();
+
+      return {
+        ...currentData,
+        bosses: currentData.bosses.map((boss, bossIndex) => ({
+          ...boss,
+          events: checkedBosses.has(bossIndex)
+            ? boss.events.filter(event => {
+                if (event.kind === "DEATH") return true;
+                return checkedKinds.has(event.kind) && checkedSkills.has(eventSkillKey(event, bossIndex));
+              })
+            : []
+        }))
+      };
+    }
+
+    function applyFilters() {
+      if (!currentData) return;
+      const data = getFilteredData();
+      updateTimelineSummary(data);
+      configPanel.style.display = "none";
+      aboutPanel.style.display = "none";
+      aboutButton.classList.remove("active");
+      setConfigButtonActive(false);
+      syncDisplayModeControls();
+      if (activeView === "coverage") {
+        mainContainer.style.display = "none";
+        coveragePanel.style.display = "block";
+        renderCoverage(data);
+      } else {
+        coveragePanel.style.display = "none";
+        mainContainer.style.display = "block";
+        renderTimelines(data);
+      }
+    }
+
+    function setActiveView(view) {
+      activeView = view;
+      timelineViewButton.classList.toggle("active", view === "timeline");
+      coverageViewButton.classList.toggle("active", view === "coverage");
+      configPanel.style.display = "none";
+      setConfigButtonActive(false);
+      syncDisplayModeControls();
+      applyFilters();
+      if (view === "coverage") {
+        setStatus(currentLanguage === "zh" ? "覆盖检查：查看支援技能是否覆盖在 Boss 技能附近。" : "Coverage view: check whether support skills landed near boss events.");
+      } else {
+        setStatus(currentLanguage === "zh" ? "时间轴：总览看事件分布，详细看血线。" : "Timeline view: use Overview for event layout, Detail for health lines.");
+      }
+    }
+
+    function setDisplayDensity(density) {
+      displayDensity = density;
+      overviewDensityButton.classList.toggle("active", density === "overview");
+      detailDensityButton.classList.toggle("active", density === "detail");
+      activeView = "timeline";
+      timelineViewButton.classList.add("active");
+      coverageViewButton.classList.remove("active");
+      syncDisplayModeControls();
+      applyFilters();
+    }
+
+    function setTimelineZoom(value) {
+      timelineZoom = Math.max(1, Math.min(4, Number(value) || 1));
+      timelineZoomInput.value = String(timelineZoom);
+      zoomLabel.innerText = `${Math.round(timelineZoom * 100)}%`;
+      bossTimelineZooms = {};
+      applyFilters();
+    }
+
+    function bossTimelineKey(boss, index) {
+      return `${index}:${boss.encounterID || boss.name || "boss"}`;
+    }
+
+    function bossTimelineZoom(key) {
+      return bossTimelineZooms[key] || timelineZoom;
+    }
+
+    function setBossTimelineZoom(key, value, focus = null) {
+      const zoom = Math.max(1, Math.min(4, Number(value) || 1));
+      bossTimelineZooms[key] = zoom;
+      pendingTimelineFocus = focus ? { ...focus, bossKey: key } : null;
+      timelineZoomInput.value = String(zoom);
+      zoomLabel.innerText = `${Math.round(zoom * 100)}%`;
+      applyFilters();
+    }
+
+    function applyFiltersKeepingPagePosition() {
+      const scrollX = window.scrollX;
+      const scrollY = window.scrollY;
+      applyFilters();
+      requestAnimationFrame(() => window.scrollTo(scrollX, scrollY));
+    }
+
+    function setBossTimelineZoomFromWheel(key, value, focus = null) {
+      const zoom = Math.max(1, Math.min(4, Number(value) || 1));
+      bossTimelineZooms[key] = zoom;
+      pendingTimelineFocus = focus ? { ...focus, bossKey: key } : null;
+      timelineZoomInput.value = String(zoom);
+      zoomLabel.innerText = `${Math.round(zoom * 100)}%`;
+      applyFiltersKeepingPagePosition();
+    }
+
+    function scrollTimelineToFocus(root, focus, minTime, span) {
+      if (!focus) return;
+      const ratio = Number.isFinite(focus.ratio) ? focus.ratio : 0.5;
+      const relTime = Number(focus.relTime);
+      if (!Number.isFinite(relTime)) return;
+      const scrollables = root.classList.contains("detail-timeline")
+        ? [root]
+        : Array.from(root.querySelectorAll(".simple-plot"));
+      scrollables.forEach(scroller => {
+        const content = root.classList.contains("detail-timeline")
+          ? root.querySelector(".detail-content")
+          : scroller.querySelector(".simple-content");
+        if (!content) return;
+        const x = ((relTime - minTime) / span) * content.scrollWidth;
+        scroller.scrollLeft = Math.max(0, x - scroller.clientWidth * ratio);
+      });
+    }
+
+    function attachWheelZoom(element, bossKey, minTime, span) {
+      element.addEventListener("wheel", event => {
+        event.preventDefault();
+        const scroller = event.target.closest(".simple-plot, .detail-timeline") || element.querySelector(".simple-plot") || element;
+        const content = scroller.querySelector(".simple-content, .detail-content") || element.querySelector(".simple-content, .detail-content");
+        const rect = scroller.getBoundingClientRect();
+        const localX = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
+        const contentWidth = content?.scrollWidth || scroller.scrollWidth || 1;
+        const relTime = minTime + ((scroller.scrollLeft + localX) / contentWidth) * span;
+        const step = event.deltaY < 0 ? 0.25 : -0.25;
+        setBossTimelineZoomFromWheel(bossKey, bossTimelineZoom(bossKey) + step, {
+          relTime,
+          ratio: 0.5
+        });
+      }, { passive: false });
+    }
+
+    function attachDragScroll(element, syncCallback) {
+      let isDragging = false;
+      let startX = 0;
+      let startScrollLeft = 0;
+
+      element.addEventListener("pointerdown", event => {
+        if (event.button !== 0) return;
+        isDragging = true;
+        startX = event.clientX;
+        startScrollLeft = element.scrollLeft;
+        element.setPointerCapture(event.pointerId);
+        element.style.cursor = "grabbing";
+      });
+
+      element.addEventListener("pointermove", event => {
+        if (!isDragging) return;
+        event.preventDefault();
+        element.scrollLeft = startScrollLeft - (event.clientX - startX);
+        if (syncCallback) syncCallback(element.scrollLeft, element);
+      });
+
+      function stopDragging(event) {
+        if (!isDragging) return;
+        isDragging = false;
+        element.style.cursor = "";
+        try {
+          element.releasePointerCapture(event.pointerId);
+        } catch (_) {
+          // Pointer may already be released by the browser.
+        }
+      }
+
+      element.addEventListener("pointerup", stopDragging);
+      element.addEventListener("pointercancel", stopDragging);
+      element.addEventListener("pointerleave", stopDragging);
+    }
+
+    function renderCoverage(data) {
+      const before = Number(coverageBeforeInput.value || 0);
+      const after = Number(coverageAfterInput.value || 0);
+      const supportKinds = new Set(["MONK", "DEF", "ITEM"]);
+      const rows = [];
+
+      data.bosses.forEach((boss, bossIndex) => {
+        const bossEvents = boss.events.filter(event => event.kind === "BOSS").slice().sort((a, b) => a.relTime - b.relTime);
+        const supportEvents = boss.events.filter(event => supportKinds.has(event.kind)).slice().sort((a, b) => a.relTime - b.relTime);
+
+        bossEvents.forEach(bossEvent => {
+          const supports = supportEvents.filter(event => {
+            const delta = event.relTime - bossEvent.relTime;
+            return delta >= -before && delta <= after;
+          });
+          rows.push({ bossIndex, bossName: boss.name, bossEvent, supports });
+        });
+      });
+
+      coverageList.innerHTML = "";
+      rows.forEach(row => {
+        const item = document.createElement("div");
+        item.className = "coverage-row";
+
+        const bossCell = document.createElement("div");
+        bossCell.className = "coverage-boss";
+        bossCell.innerHTML = `<strong>${formatRelTime(row.bossEvent.relTime)} ${escapeHtml(row.bossEvent.name)}</strong>Boss ${row.bossIndex + 1}: ${escapeHtml(row.bossName)}`;
+
+        const supportCell = document.createElement("div");
+        supportCell.className = "coverage-supports";
+        if (row.supports.length === 0) {
+          const empty = document.createElement("span");
+          empty.className = "coverage-empty";
+          empty.textContent = "No support skill in window";
+          supportCell.appendChild(empty);
+        } else {
+          row.supports.forEach(event => {
+            const delta = event.relTime - row.bossEvent.relTime;
+            const chip = document.createElement("span");
+            chip.className = `coverage-chip kind-${event.kind}`;
+            chip.textContent = `${formatRelTime(event.relTime)} ${event.name}${event.who ? ` (${event.who})` : ""} ${delta >= 0 ? "+" : ""}${delta.toFixed(1)}s`;
+            supportCell.appendChild(chip);
+          });
+        }
+
+        item.appendChild(bossCell);
+        item.appendChild(supportCell);
+        coverageList.appendChild(item);
+      });
+
+      if (coverageList.innerHTML === "") {
+        coverageList.innerText = "No boss skill to check under current filters.";
+      }
+    }
+
+    function buildMrtNote(data) {
+      const lines = [];
+      data.bosses.forEach(boss => {
+        if (!boss.events || boss.events.length === 0) return;
+        boss.events.slice().sort((a, b) => a.relTime - b.relTime).forEach(event => {
+          if (!event.spellId) return;
+          lines.push(`{time:${formatMrtTime(event.relTime)}} - {spell:${event.spellId}}`);
+        });
+      });
+      return lines.join("\n").trim();
+    }
+
+    async function copyTextAxis() {
+      const text = buildMrtNote(getFilteredData());
+      if (!text) {
+        setStatus("当前筛选下没有可复制的 MRT 内容。");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        showCopyModal(text, true);
+        setStatus("MRT 内容已复制。");
+      } catch (error) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand("copy");
+        textarea.remove();
+        showCopyModal(text, copied);
+        setStatus("MRT 内容已复制。");
+      }
+    }
+
+    function downloadTextAxis() {
+      const text = buildMrtNote(getFilteredData());
+      if (!text) {
+        setStatus("当前筛选下没有可下载的 MRT 内容。");
+        return;
+      }
+      const selected = fightSelect.options[fightSelect.selectedIndex];
+      const filename = (selected ? selected.textContent : "timeline").replace(/[\\/:*?"<>|]/g, "_");
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${filename}_mrt.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setStatus("MRT 文本文件已下载。");
+    }
+
+    function tooltipText(event) {
+      const timeLabel = currentLanguage === "zh" ? "时间" : "Time";
+      const skillLabel = currentLanguage === "zh" ? "技能" : "Skill";
+      const sourceLabel = currentLanguage === "zh" ? "来源" : "Source";
+      if (event.kind === "DEATH") {
+        const playerLabel = currentLanguage === "zh" ? "死亡玩家" : "Dead player";
+        const classLabel = currentLanguage === "zh" ? "职业" : "Class";
+        const killingLabel = currentLanguage === "zh" ? "致死技能" : "Killing blow";
+        const killerLabel = currentLanguage === "zh" ? "击杀来源" : "Killer";
+        const unknown = currentLanguage === "zh" ? "未识别" : "Unknown";
+        return `${timeLabel}: ${formatRelTime(event.relTime)}\n${playerLabel}: ${event.who || unknown}\n${classLabel}: ${event.playerClass || unknown}\n${killingLabel}: ${event.killingBlowName || unknown}${event.killingBlowId ? ` #${event.killingBlowId}` : ""}\n${killerLabel}: ${event.killingSource || unknown}`;
+      }
+      return `${timeLabel}: ${formatRelTime(event.relTime)}\n${skillLabel}: ${displayEventName(event)}\n${sourceLabel}: ${event.who || "Boss"}`;
+    }
+
+    function eventClassName(event) {
+      return `kind-${event.kind} overview-item`;
+    }
+
+    function eventLaneKind(event) {
+      return event.lane || (event.kind === "DEATH" ? "BOSS" : event.kind);
+    }
+
+    function kindColor(kind) {
+      return {
+        BOSS: "#e74c3c",
+        MONK: "#27ae60",
+        DEF: "#3498db",
+        ITEM: "#f1c40f"
+      }[kind] || "#555";
+    }
+
+    function buildHealthPath(points, minTime, span, width, height) {
+      if (!Array.isArray(points) || points.length < 2) return "";
+      return points
+        .map((point, index) => {
+          const x = ((point.relTime - minTime) / span) * width;
+          const pct = Math.max(0, Math.min(100, Number(point.pct) || 0));
+          const y = (invertHealth ? 100 - pct : pct) / 100 * height;
+          return `${index === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
+        })
+        .join(" ");
+    }
+
+    function healthYFromPercent(pct, height) {
+      const safePct = Math.max(0, Math.min(100, Number(pct) || 0));
+      const raw = (invertHealth ? 100 - safePct : safePct) / 100 * height;
+      return raw;
+    }
+
+    function clampDetailIconY(y, height) {
+      const padding = 17;
+      return Math.max(padding, Math.min(height - padding, y));
+    }
+
+    function healthPercentAt(boss, playerId, relTime) {
+      if (!playerId || !Array.isArray(boss.health)) return null;
+      const player = boss.health.find(item => String(item.playerId) === String(playerId));
+      const points = player?.points || [];
+      if (!points.length) return null;
+      let before = null;
+      let after = null;
+      for (const point of points) {
+        if (point.relTime <= relTime) before = point;
+        if (point.relTime >= relTime) {
+          after = point;
+          break;
+        }
+      }
+      if (before && after && before !== after) {
+        const span = after.relTime - before.relTime;
+        if (span <= 0) return before.pct;
+        const ratio = (relTime - before.relTime) / span;
+        return before.pct + (after.pct - before.pct) * ratio;
+      }
+      return (before || after)?.pct ?? null;
+    }
+
+    function detailEventY(event, boss, height) {
+      if (event.kind === "BOSS" || event.kind === "DEATH") {
+        return clampDetailIconY(healthYFromPercent(0, height), height);
+      }
+      const pct = healthPercentAt(boss, event.sourceId, event.relTime);
+      return clampDetailIconY(healthYFromPercent(pct ?? 50, height), height);
+    }
+
+    function appendDetailAxis(content, height) {
+      const axis = document.createElement("div");
+      axis.className = "detail-axis";
+      [100, 80, 60, 40, 20, 0].forEach(pct => {
+        const label = document.createElement("div");
+        label.className = "detail-axis-label";
+        label.style.top = `${clampDetailIconY(healthYFromPercent(pct, height), height)}px`;
+        label.innerText = `${pct}%`;
+        axis.appendChild(label);
+      });
+      content.appendChild(axis);
+    }
+
+    function appendResourceLayer(content, boss, minTime, span, widthPx, heightPx) {
+      if (!showDamageLayer && !showHealingLayer) return;
+      const resources = boss.resources || {};
+      const damage = Array.isArray(resources.damage) ? resources.damage : [];
+      const healing = Array.isArray(resources.healing) ? resources.healing : [];
+
+      function hasResourceAmounts(series) {
+        return Array.isArray(series) && series.some(point => Number(point.amount) > 0);
+      }
+
+      function appendResourceNote(message) {
+        let notes = content.querySelector(".detail-resource-notes");
+        if (!notes) {
+          notes = document.createElement("div");
+          notes.className = "detail-resource-notes";
+          content.appendChild(notes);
+        }
+        const note = document.createElement("div");
+        note.className = "detail-resource-note";
+        note.innerText = message;
+        notes.appendChild(note);
+      }
+
+      if (showDamageLayer && !hasResourceAmounts(damage)) {
+        appendResourceNote(t("noDamageLayerData"));
+      }
+      if (showHealingLayer && !hasResourceAmounts(healing)) {
+        appendResourceNote(t("noHealingLayerData"));
+      }
+
+      const layer = document.createElement("div");
+      layer.className = "resource-layer";
+
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", "resource-svg");
+      svg.setAttribute("viewBox", `0 0 ${widthPx} ${heightPx}`);
+      svg.setAttribute("preserveAspectRatio", "none");
+
+      function smoothedSeries(series) {
+        const map = new Map();
+        series.forEach(point => {
+          const second = Math.round(Number(point.relTime));
+          const amount = Number(point.amount) || 0;
+          if (Number.isFinite(second) && amount > 0) {
+            map.set(second, (map.get(second) || 0) + amount);
+          }
+        });
+        const points = [];
+        for (let second = Math.floor(minTime); second <= Math.ceil(minTime + span); second += 1) {
+          const amount =
+            (map.get(second - 1) || 0) * 0.35 +
+            (map.get(second) || 0) +
+            (map.get(second + 1) || 0) * 0.35;
+          points.push({ relTime: second, amount });
+        }
+        return points;
+      }
+
+      function addArea(series, type) {
+        const smoothed = smoothedSeries(series);
+        const maxAmount = Math.max(1, ...smoothed.map(point => Number(point.amount) || 0));
+        const useBottomBaseline = type === "damage" ? !invertDamageLayer : !invertHealingLayer;
+        const points = smoothed.map(point => {
+          const relTime = Number(point.relTime);
+          const amount = Number(point.amount) || 0;
+          const x = ((relTime - minTime) / span) * widthPx;
+          const h = (amount / maxAmount) * heightPx * 0.42;
+          const y = useBottomBaseline ? heightPx - h : h;
+          return { x, y };
+        });
+        if (!points.length || points.every(point => useBottomBaseline ? point.y >= heightPx : point.y <= 0)) return;
+
+        const baseline = useBottomBaseline ? heightPx : 0;
+        const path = [
+          `M ${points[0].x.toFixed(1)} ${baseline}`,
+          ...points.map(point => `L ${point.x.toFixed(1)} ${point.y.toFixed(1)}`),
+          `L ${points[points.length - 1].x.toFixed(1)} ${baseline}`,
+          "Z"
+        ].join(" ");
+        const line = points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(" ");
+
+        const area = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        area.setAttribute("class", "resource-area");
+        area.setAttribute("d", path);
+        area.setAttribute("fill", type === "damage" ? "rgba(231, 76, 60, 0.58)" : "rgba(46, 204, 113, 0.5)");
+        svg.appendChild(area);
+
+        const stroke = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        stroke.setAttribute("class", "resource-line");
+        stroke.setAttribute("d", line);
+        stroke.setAttribute("stroke", type === "damage" ? "rgba(255, 99, 86, 0.9)" : "rgba(72, 235, 137, 0.86)");
+        svg.appendChild(stroke);
+      }
+
+      if (showDamageLayer) addArea(damage, "damage");
+      if (showHealingLayer) addArea(healing, "healing");
+      if (svg.childNodes.length) {
+        layer.appendChild(svg);
+        content.appendChild(layer);
+      }
+    }
+
+    function renderHealthOverlay(timelineDiv, boss, minTime, span, contentWidth) {
+      if (displayDensity !== "detail" || !Array.isArray(boss.health) || boss.health.length === 0) return null;
+
+      const overlay = document.createElement("div");
+      overlay.className = "health-overlay";
+
+      const content = document.createElement("div");
+      content.className = "health-content";
+      content.style.width = contentWidth;
+
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", "health-svg");
+      svg.setAttribute("viewBox", "0 0 100 100");
+      svg.setAttribute("preserveAspectRatio", "none");
+
+      boss.health.slice(0, 5).forEach(player => {
+        const pathData = buildHealthPath(player.points, minTime, span);
+        if (!pathData) return;
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("class", "health-line");
+        path.setAttribute("d", pathData);
+        path.setAttribute("stroke", player.color || "#ddd");
+        svg.appendChild(path);
+      });
+
+      content.appendChild(svg);
+      overlay.appendChild(content);
+      timelineDiv.appendChild(overlay);
+      return content;
+    }
+
+    function appendGridAndLabels(content, minTime, maxTime, span) {
+      for (let tick = Math.ceil(minTime / 10) * 10; tick <= maxTime; tick += 10) {
+        const x = ((tick - minTime) / span) * 100;
+        const line = document.createElement("div");
+        line.className = "simple-grid-line";
+        line.style.left = `${x}%`;
+        content.appendChild(line);
+
+        const timeLabel = document.createElement("div");
+        timeLabel.className = "simple-time-label";
+        timeLabel.style.left = `${x}%`;
+        timeLabel.innerText = formatRelTime(tick);
+        content.appendChild(timeLabel);
+      }
+    }
+
+    function stackedOverviewEvents(events, minTime, span, contentPixelWidth, windowSeconds = 5, minGapPx = 10) {
+      const sorted = [...events].sort((a, b) => a.relTime - b.relTime);
+      const result = [];
+      let cluster = [];
+
+      function displayLeftPercent(event, index, count) {
+        const realPercent = ((event.relTime - minTime) / span) * 100;
+        if (count <= 1 || !contentPixelWidth) return realPercent;
+        const offsetPx = (index - (count - 1) / 2) * minGapPx;
+        const offsetPercent = (offsetPx / contentPixelWidth) * 100;
+        return Math.max(0, Math.min(100, realPercent + offsetPercent));
+      }
+
+      function flushCluster() {
+        if (!cluster.length) return;
+        if (cluster.length === 1) {
+          result.push({ event: cluster[0], top: 50, left: displayLeftPercent(cluster[0], 0, 1) });
+        } else {
+          const topStart = 22;
+          const topEnd = 78;
+          const step = (topEnd - topStart) / Math.max(1, cluster.length - 1);
+          cluster.forEach((event, index) => {
+            result.push({ event, top: topStart + step * index, left: displayLeftPercent(event, index, cluster.length) });
+          });
+        }
+        cluster = [];
+      }
+
+      sorted.forEach(event => {
+        if (cluster.length && event.relTime - cluster[cluster.length - 1].relTime > windowSeconds) {
+          flushCluster();
+        }
+        cluster.push(event);
+      });
+      flushCluster();
+      return result;
+    }
+
+    function setHighlightedHealth(content, playerId) {
+      content.dataset.highlightPlayer = playerId || "";
+      content.classList.toggle("has-highlight", Boolean(playerId));
+      content.querySelectorAll(".health-line").forEach(line => {
+        const isHidden = line.classList.contains("hidden-player");
+        line.classList.toggle("highlight", !isHidden && line.dataset.playerId === String(playerId));
+      });
+      content.querySelectorAll(".health-legend-chip").forEach(chip => {
+        const isHidden = chip.classList.contains("hidden-player");
+        chip.classList.toggle("active", !isHidden && chip.dataset.playerId === String(playerId));
+      });
+    }
+
+    function setHealthPlayerVisibility(content, playerId, visible) {
+      if (!playerId) return;
+      const hidden = new Set((content.dataset.hiddenPlayers || "").split(",").filter(Boolean));
+      if (visible) {
+        hidden.delete(String(playerId));
+      } else {
+        hidden.add(String(playerId));
+      }
+      content.dataset.hiddenPlayers = Array.from(hidden).join(",");
+
+      content.querySelectorAll(".health-line").forEach(line => {
+        line.classList.toggle("hidden-player", hidden.has(line.dataset.playerId));
+      });
+      content.querySelectorAll(".health-legend-chip").forEach(chip => {
+        const isHidden = hidden.has(chip.dataset.playerId);
+        chip.classList.toggle("hidden-player", isHidden);
+      });
+
+      if (hidden.has(content.dataset.lockedPlayer)) {
+        content.dataset.lockedPlayer = "";
+      }
+      setHighlightedHealth(content, content.dataset.lockedPlayer || "");
+    }
+
+    function appendHealthLegend(legendHost, content, players) {
+      if (!players.length) return;
+      legendHost.innerHTML = "";
+      players.forEach(player => {
+        const chip = document.createElement("label");
+        chip.className = "health-legend-chip";
+        chip.dataset.playerId = String(player.playerId);
+        chip.dataset.playerColor = player.color || "#ddd";
+        chip.style.setProperty("--player-color", chip.dataset.playerColor);
+        chip.title = currentLanguage === "zh" ? "悬浮高亮，取消勾选隐藏" : "Hover to highlight, uncheck to hide";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = true;
+        checkbox.addEventListener("change", () => {
+          setHealthPlayerVisibility(content, chip.dataset.playerId, checkbox.checked);
+        });
+
+        const name = document.createElement("span");
+        name.textContent = player.name;
+
+        chip.appendChild(checkbox);
+        chip.appendChild(name);
+        chip.addEventListener("mouseenter", () => {
+          if (!chip.classList.contains("hidden-player")) setHighlightedHealth(content, chip.dataset.playerId);
+        });
+        chip.addEventListener("mouseleave", () => setHighlightedHealth(content, content.dataset.lockedPlayer || ""));
+        legendHost.appendChild(chip);
+      });
+    }
+
+    function appendHealthSvg(content, boss, minTime, span, widthPx, heightPx, legendHost) {
+      if (!showHealthLayer) return;
+      if (!Array.isArray(boss.health) || boss.health.length === 0) {
+        const note = document.createElement("div");
+        note.className = "detail-health-note";
+        note.innerText = t("noHealthData");
+        content.appendChild(note);
+        return;
+      }
+
+      const players = boss.health.slice(0, 5).filter(player => Array.isArray(player.points) && player.points.length >= 2);
+      if (legendHost) appendHealthLegend(legendHost, content, players);
+
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", "health-svg");
+      svg.setAttribute("viewBox", `0 0 ${widthPx} ${heightPx}`);
+      svg.setAttribute("preserveAspectRatio", "none");
+
+      players.forEach(player => {
+        const pathData = buildHealthPath(player.points, minTime, span, widthPx, heightPx);
+        if (!pathData) return;
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("class", "health-line");
+        path.setAttribute("d", pathData);
+        path.setAttribute("stroke", player.color || "#ddd");
+        path.dataset.playerId = String(player.playerId);
+        svg.appendChild(path);
+      });
+
+      if (!svg.childNodes.length) {
+        const note = document.createElement("div");
+        note.className = "detail-health-note";
+        note.innerText = t("noHealthData");
+        content.appendChild(note);
+        return;
+      }
+
+      content.appendChild(svg);
+    }
+
+    function renderDetailTimeline(timelineDiv, boss, legendHost, bossKey, zoom) {
+      timelineDiv.innerHTML = "";
+      timelineDiv.className = "timeline-frame detail-timeline";
+      const minTime = -15;
+      const maxEventTime = Math.max(150, ...boss.events.map(event => event.relTime + 10));
+      const maxTime = Math.ceil(maxEventTime / 10) * 10;
+      const span = Math.max(1, maxTime - minTime);
+      const widthPx = Math.max(900, Math.round(900 * zoom));
+      const heightPx = 300;
+
+      const content = document.createElement("div");
+      content.className = "detail-content";
+      content.style.width = `${widthPx}px`;
+
+      appendGridAndLabels(content, minTime, maxTime, span);
+      appendResourceLayer(content, boss, minTime, span, widthPx, heightPx);
+      appendHealthSvg(content, boss, minTime, span, widthPx, heightPx, legendHost);
+      appendDetailAxis(content, heightPx);
+
+      boss.events.forEach(event => {
+        const item = document.createElement("div");
+        item.className = `detail-event ${eventClassName(event)}`;
+        item.style.left = `${((event.relTime - minTime) / span) * 100}%`;
+        item.style.top = `${detailEventY(event, boss, heightPx)}px`;
+        item.title = tooltipText(event);
+        item.innerHTML = timelineContent(event);
+        content.appendChild(item);
+      });
+
+      timelineDiv.appendChild(content);
+      attachWheelZoom(timelineDiv, bossKey, minTime, span);
+      attachDragScroll(timelineDiv);
+      if (pendingTimelineFocus?.bossKey === bossKey) {
+        scrollTimelineToFocus(timelineDiv, pendingTimelineFocus, minTime, span);
+        pendingTimelineFocus = null;
+      }
+    }
+
+    function renderSimpleTimeline(timelineDiv, boss, visibleKinds, bossKey, zoom) {
+      timelineDiv.innerHTML = "";
+      timelineDiv.className = "timeline-frame simple-timeline";
+      const minTime = -15;
+      const maxEventTime = Math.max(150, ...boss.events.map(event => event.relTime + 10));
+      const maxTime = Math.ceil(maxEventTime / 10) * 10;
+      const span = Math.max(1, maxTime - minTime);
+      const rowHeight = `${100 / Math.max(1, visibleKinds.length)}%`;
+      const contentWidth = `${Math.round(zoom * 100)}%`;
+      const contentPixelWidth = Math.max(900, Math.round(900 * zoom));
+
+      visibleKinds.forEach((kind, kindIndex) => {
+        const row = document.createElement("div");
+        row.className = "simple-row";
+        row.style.height = rowHeight;
+        row.style.borderBottomColor = kindColor(kind);
+        row.style.borderBottomWidth = kindIndex === visibleKinds.length - 1 ? "0" : "1px";
+
+        const label = document.createElement("div");
+        label.className = "simple-row-label";
+        label.innerText = kindLabel(kind);
+        label.style.borderRight = `2px solid ${kindColor(kind)}`;
+
+        const plot = document.createElement("div");
+        plot.className = "simple-plot";
+
+        const content = document.createElement("div");
+        content.className = "simple-content";
+        content.style.width = contentWidth;
+
+        appendGridAndLabels(content, minTime, maxTime, span);
+
+        const laneEvents = boss.events.filter(event => eventLaneKind(event) === kind);
+        const displayEvents = kind === "DEF"
+          ? stackedOverviewEvents(laneEvents, minTime, span, contentPixelWidth)
+          : laneEvents.map(event => ({
+              event,
+              top: event.kind === "DEATH" ? 16 : 50,
+              left: ((event.relTime - minTime) / span) * 100
+            }));
+        displayEvents.forEach(({ event, top, left }) => {
+          const item = document.createElement("div");
+          item.className = `simple-event ${eventClassName(event)}`;
+          if (event.kind === "DEATH") item.classList.add("overview-death-event");
+          item.style.left = `${left}%`;
+          item.style.top = `${top}%`;
+          item.title = tooltipText(event);
+          item.innerHTML = timelineContent(event);
+          content.appendChild(item);
+        });
+
+        plot.appendChild(content);
+        row.appendChild(label);
+        row.appendChild(plot);
+        timelineDiv.appendChild(row);
+      });
+
+      const healthContent = renderHealthOverlay(timelineDiv, boss, minTime, span, contentWidth);
+      const plots = Array.from(timelineDiv.querySelectorAll(".simple-plot"));
+      let syncingScroll = false;
+      function syncTimelineScroll(scrollLeft, sourcePlot) {
+        if (syncingScroll) return;
+        syncingScroll = true;
+        plots.forEach(other => {
+          if (other !== sourcePlot) other.scrollLeft = scrollLeft;
+        });
+        if (healthContent) {
+          healthContent.style.transform = `translateX(${-scrollLeft}px)`;
+        }
+        syncingScroll = false;
+      }
+
+      plots.forEach(plot => {
+        plot.addEventListener("scroll", () => {
+          syncTimelineScroll(plot.scrollLeft, plot);
+        });
+        attachDragScroll(plot, syncTimelineScroll);
+      });
+      attachWheelZoom(timelineDiv, bossKey, minTime, span);
+      if (pendingTimelineFocus?.bossKey === bossKey) {
+        scrollTimelineToFocus(timelineDiv, pendingTimelineFocus, minTime, span);
+        syncTimelineScroll((timelineDiv.querySelector(".simple-plot") || {}).scrollLeft || 0, timelineDiv.querySelector(".simple-plot"));
+        pendingTimelineFocus = null;
+      }
+    }
+
+    function renderTimelines(data) {
+      mainContainer.innerHTML = "";
+      const visibleKinds = KIND_ORDER.filter(kind => data.bosses.some(boss => boss.events.some(event => eventLaneKind(event) === kind)));
+      const hasVisTimeline = window.vis && window.vis.DataSet && window.vis.Timeline;
+      const groups = hasVisTimeline ? new vis.DataSet(visibleKinds.map(kind => ({ id: kind, content: kindLabel(kind) }))) : null;
+
+      data.bosses.forEach((boss, index) => {
+        if (!boss.events || boss.events.length === 0) return;
+        const bossKey = bossTimelineKey(boss, index);
+        const zoom = bossTimelineZoom(bossKey);
+
+        const block = document.createElement("div");
+        block.className = "boss-container";
+
+        const title = document.createElement("div");
+        title.className = "boss-title";
+        const titleText = document.createElement("span");
+        titleText.className = "boss-title-text";
+        titleText.innerText = `Boss ${index + 1}: ${boss.name}`;
+        const titleLegend = document.createElement("div");
+        titleLegend.className = "health-legend";
+        title.appendChild(titleText);
+        title.appendChild(titleLegend);
+
+        const timelineDiv = document.createElement("div");
+        timelineDiv.className = "timeline-frame";
+
+        block.appendChild(title);
+        block.appendChild(timelineDiv);
+        mainContainer.appendChild(block);
+
+        if (displayDensity === "detail") {
+          renderDetailTimeline(timelineDiv, boss, titleLegend, bossKey, zoom);
+        } else {
+          titleLegend.innerHTML = "";
+          renderSimpleTimeline(timelineDiv, boss, visibleKinds, bossKey, zoom);
+        }
+        return;
+
+        const items = new vis.DataSet();
+        boss.events.forEach((event, eventIndex) => {
+          const timeStr = formatRelTime(event.relTime);
+          items.add({
+            id: eventIndex,
+            group: event.kind,
+            content: timelineContent(event),
+            start: formatToDate(event.relTime),
+            className: eventClassName(event),
+            title:
+              `Time: <span style="color:#f1c40f;font-weight:bold;">${timeStr}</span><br>` +
+              `Skill: <b>${escapeHtml(displayEventName(event))}</b><br>` +
+              `Source: ${escapeHtml(event.who || "Boss")}`
+          });
+        });
+
+        new vis.Timeline(timelineDiv, items, groups, {
+          stack: true,
+          height: "260px",
+          minHeight: "260px",
+          maxHeight: "260px",
+          showCurrentTime: false,
+          showMajorLabels: false,
+          start: formatToDate(-15),
+          end: formatToDate(150),
+          format: { minorLabels: customTimeFormat },
+          tooltip: { followMouse: true, overflowMethod: "cap" },
+          zoomMin: 10000,
+          zoomMax: 600000
+        });
+      });
+
+      if (mainContainer.innerHTML === "") {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.innerText = t("noEventEmpty");
+        mainContainer.appendChild(empty);
+      }
+    }
+
+    fetchFightsButton.addEventListener("click", fetchFights);
+    loadButton.addEventListener("click", loadTimeline);
+    timelineViewButton.addEventListener("click", () => setActiveView("timeline"));
+    coverageViewButton.addEventListener("click", () => setActiveView("coverage"));
+    overviewDensityButton.addEventListener("click", () => setDisplayDensity("overview"));
+    detailDensityButton.addEventListener("click", () => setDisplayDensity("detail"));
+    zoomOutButton.addEventListener("click", () => setTimelineZoom(timelineZoom - 0.25));
+    zoomInButton.addEventListener("click", () => setTimelineZoom(timelineZoom + 0.25));
+    timelineZoomInput.addEventListener("input", () => setTimelineZoom(timelineZoomInput.value));
+    showHealthLayerInput.addEventListener("change", () => {
+      showHealthLayer = showHealthLayerInput.checked;
+      applyFilters();
+    });
+    invertHealthInput.addEventListener("change", () => {
+      invertHealth = invertHealthInput.checked;
+      applyFilters();
+    });
+    showDamageLayerInput.addEventListener("change", () => {
+      showDamageLayer = showDamageLayerInput.checked;
+      applyFilters();
+    });
+    invertDamageLayerInput.addEventListener("change", () => {
+      invertDamageLayer = invertDamageLayerInput.checked;
+      applyFilters();
+    });
+    showHealingLayerInput.addEventListener("change", () => {
+      showHealingLayer = showHealingLayerInput.checked;
+      applyFilters();
+    });
+    invertHealingLayerInput.addEventListener("change", () => {
+      invertHealingLayer = invertHealingLayerInput.checked;
+      applyFilters();
+    });
+    coverageBeforeInput.addEventListener("input", applyFilters);
+    coverageAfterInput.addEventListener("input", applyFilters);
+    copyAxisButton.addEventListener("click", copyTextAxis);
+    downloadAxisButton.addEventListener("click", downloadTextAxis);
+    languageSelect.addEventListener("change", () => {
+      currentLanguage = languageSelect.value;
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
+      applyLanguage();
+      if (configData) {
+        renderConfigView(configData);
+        populateConfigEditor(configData);
+      }
+      if (currentData) {
+        buildFilters(currentData);
+        applyFilters();
+      }
+    });
+    aboutButton.addEventListener("click", () => setAboutVisible(aboutPanel.style.display !== "block"));
+    closeAboutButton.addEventListener("click", () => setAboutVisible(false));
+    configButton.addEventListener("click", showConfigView);
+    refreshConfigButton.addEventListener("click", showConfigView);
+    closeConfigButton.addEventListener("click", closeConfigView);
+    exportConfigButton.addEventListener("click", exportConfig);
+    importConfigButton.addEventListener("click", () => importConfigFile.click());
+    restoreConfigButton.addEventListener("click", restoreConfigBackup);
+    repairConfigButton.addEventListener("click", repairConfig);
+    importConfigFile.addEventListener("change", async () => {
+      const file = importConfigFile.files && importConfigFile.files[0];
+      if (!file) return;
+      const text = await file.text();
+      importConfigText(text);
+    });
+    configDungeonSelect.addEventListener("change", updateConfigBossSelect);
+    configSkillSourceSelect.addEventListener("change", updateConfigDamageDisplayState);
+    addBossSkillButton.addEventListener("click", addBossSkill);
+    supportCategorySelect.addEventListener("change", updateSupportSourceState);
+    addSupportSkillButton.addEventListener("click", addSupportSkill);
+    configContent.addEventListener("click", event => {
+      const deleteButton = event.target.closest(".config-delete");
+      if (!deleteButton) return;
+      deleteConfigEntry(deleteButton);
+    });
+    configContent.addEventListener("change", event => {
+      const select = event.target.closest(".damage-display-select");
+      if (!select) return;
+      updateDamageDisplay(select);
+    });
+    saveTokenButton.addEventListener("click", saveToken);
+    settingsButton.addEventListener("click", () => {
+      settingsPinnedOpen = setupPanel.style.display !== "block";
+      setSettingsVisible(settingsPinnedOpen);
+    });
+    copyModalClose.addEventListener("click", hideCopyModal);
+    copyModal.addEventListener("click", event => {
+      if (event.target === copyModal) hideCopyModal();
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") hideCopyModal();
+    });
+
+    tokenInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") saveToken();
+    });
+
+    [configSkillNameInput, configSkillIdInput].forEach(input => {
+      input.addEventListener("input", () => {
+        markFieldError(input, input === configSkillIdInput && !String(input.value || "").trim());
+      });
+      input.addEventListener("keydown", event => {
+        if (event.key === "Enter") addBossSkill();
+      });
+    });
+    configSkillIdInput.addEventListener("input", updateSpellPreviews);
+
+    [supportSkillNameInput, supportSkillIdInput].forEach(input => {
+      input.addEventListener("input", () => {
+        markFieldError(input, input === supportSkillIdInput && !String(input.value || "").trim());
+      });
+      input.addEventListener("keydown", event => {
+        if (event.key === "Enter") addSupportSkill();
+      });
+    });
+    supportSkillIdInput.addEventListener("input", updateSpellPreviews);
+
+    logUrlInput.addEventListener("input", () => {
+      resetFightSelect(t("loadFightsFirst"));
+      resetFilters();
+      setStatus(currentLanguage === "zh" ? "日志链接已变化，请重新读取战斗列表。" : "Report link changed. Load fights again.");
+    });
+
+    logUrlInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") fetchFights();
+    });
+
+    fightSelect.addEventListener("keydown", event => {
+      if (event.key === "Enter") loadTimeline();
+    });
+
+    filterGrid.addEventListener("change", event => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) return;
+      if (target.closest(".filter-kind")) {
+        const kind = target.dataset.kind;
+        filterGrid.querySelectorAll(`.skill-list input[data-kind="${kind}"]`).forEach(input => {
+          input.checked = target.checked;
+        });
+      } else {
+        const kind = target.dataset.kind;
+        const skillInputs = Array.from(filterGrid.querySelectorAll(`.skill-list input[data-kind="${kind}"]`));
+        const kindInput = filterGrid.querySelector(`.filter-kind input[data-kind="${kind}"]`);
+        if (kindInput) kindInput.checked = skillInputs.some(input => input.checked);
+      }
+      applyFilters();
+    });
+
+    bossFilter.addEventListener("change", event => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) return;
+      const row = target.closest(".boss-filter-row");
+      if (!row) return;
+      if (target.dataset.role === "boss-segment") {
+        row.querySelectorAll(".boss-skill-list input").forEach(input => {
+          input.checked = target.checked;
+        });
+      } else if (target.dataset.kind === "BOSS") {
+        const bossInput = row.querySelector('input[data-role="boss-segment"]');
+        const skillInputs = Array.from(row.querySelectorAll(".boss-skill-list input"));
+        if (bossInput) bossInput.checked = skillInputs.some(input => input.checked);
+      }
+      applyFilters();
+    });
+
+    selectAllButton.addEventListener("click", () => {
+      bossFilter.querySelectorAll('input[type="checkbox"]').forEach(input => { input.checked = true; });
+      filterGrid.querySelectorAll('input[type="checkbox"]').forEach(input => { input.checked = true; });
+      applyFilters();
+    });
+
+    clearAllButton.addEventListener("click", () => {
+      bossFilter.querySelectorAll('input[type="checkbox"]').forEach(input => { input.checked = false; });
+      filterGrid.querySelectorAll('input[type="checkbox"]').forEach(input => { input.checked = false; });
+      applyFilters();
+    });
+
+    applyLanguage();
+    checkAppStatus();
+  </script>
+</body>
+</html>
+
